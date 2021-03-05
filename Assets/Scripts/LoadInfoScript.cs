@@ -143,7 +143,7 @@ public class LoadInfoScript : MonoBehaviour
 
     private void AddPersonToEvent()
     {
-        gameManager.TryAddPersonToSign(personInformationScript.personName, FindNumberOfOpenEvent());
+        gameManager.TryAddPersonToSign(personInformationScript.personProfile.ReturnPersonName(), FindNumberOfOpenEvent());
         //openEvent = gameManager.listSigns[FindNumberOfOpenEvent()];
     }
 
@@ -151,7 +151,7 @@ public class LoadInfoScript : MonoBehaviour
     {
         for (int i = 0; i < openEvent.peopleList.Count; i++)
         {
-            if (openEvent.peopleList[i] == personInformationScript.personName)
+            if (openEvent.peopleList[i] == personInformationScript.personProfile.ReturnPersonName())
             {
                 if (FindNumberOfOpenEvent() != -1) {
                     gameManager.TryRemovePersonFromSign(i, FindNumberOfOpenEvent());
@@ -176,7 +176,7 @@ public class LoadInfoScript : MonoBehaviour
         {
             joinButton.gameObject.SetActive(false);
 
-            if (openEvent.ownerEvent == personInformationScript.personName)
+            if (openEvent.ownerEvent == personInformationScript.personProfile.ReturnPersonName())
             {
                 leaveButton.gameObject.SetActive(false);
                 deleteButton.gameObject.SetActive(true);
@@ -199,7 +199,7 @@ public class LoadInfoScript : MonoBehaviour
     {
         for(int i = 0; i < openEvent.peopleList.Count; i++)
         {
-            if(openEvent.peopleList[i] == personInformationScript.personName)
+            if(openEvent.peopleList[i] == personInformationScript.personProfile.ReturnPersonName())
             {
                 return true;
             }

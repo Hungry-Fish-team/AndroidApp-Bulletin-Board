@@ -38,8 +38,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
             BGLoad_image.gameObject.SetActive(false);
 
-            if (GetComponent<PersonInformationScript>().personName != "") {
-                PhotonNetwork.NickName = GetComponent<PersonInformationScript>().personName;
+            if (GetComponent<PersonInformationScript>().personProfile.ReturnPersonName() != "") {
+                PhotonNetwork.NickName = GetComponent<PersonInformationScript>().personProfile.ReturnPersonName();
             }
             else
             {

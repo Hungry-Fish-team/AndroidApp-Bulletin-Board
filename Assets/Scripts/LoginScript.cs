@@ -23,7 +23,7 @@ public class LoginScript : MonoBehaviour
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         personInformationScript = GameObject.Find("GameManager").GetComponent<PersonInformationScript>();
 
-        namePerson = personInformationScript.personName;
+        namePerson = personInformationScript.personProfile.ReturnPersonName();
         namePersonInputField.text = namePerson;
     }
 
@@ -61,21 +61,21 @@ public class LoginScript : MonoBehaviour
 
     public void SaveLogin()
     {
-        if (!PhotonNetwork.NickName.Contains(namePerson))
+        //if (!PhotonNetwork.NickName.Contains(namePerson))
         {
             PhotonNetwork.NickName = namePerson;
 
-            personInformationScript.personName = namePerson;
+            personInformationScript.personProfile.LoadPersonName(namePerson);
 
             personInformationScript.SaveAllDataToFile();
 
             gameManager.OpenMenuObject();
 
         }
-        else
-        {
-            Debug.Log(PhotonNetwork.NickName + " " + namePerson);
-            StartCoroutine(gameManager.ErrorOrInfoFunc("Your name is already in use"));
-        }
+        //else
+        //{
+        //    Debug.Log(PhotonNetwork.NickName + " " + namePerson);
+        //    StartCoroutine(gameManager.ErrorOrInfoFunc("Your name is already in use"));
+        //}
     }
 }

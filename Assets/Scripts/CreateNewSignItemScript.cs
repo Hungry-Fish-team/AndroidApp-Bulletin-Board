@@ -74,7 +74,7 @@ public class CreateNewSignItemScript : MonoBehaviour
 
     public void SaveInfoAboutEvent()
     {
-        if (personInformationScript.personName != "") {
+        if (personInformationScript.personProfile.ReturnPersonName() != "") {
             WriteInfo();
 
             //gameManager.listSigns.Add(signItemScriptableObject);
@@ -103,12 +103,12 @@ public class CreateNewSignItemScript : MonoBehaviour
         signItemScriptableObject.dateTimeText = dateTime;
         signItemScriptableObject.icon = image;
         signItemScriptableObject.infoEventText = infoEvent;
-        signItemScriptableObject.ownerEvent = personInformationScript.personName;
+        signItemScriptableObject.ownerEvent = personInformationScript.personProfile.ReturnPersonName();
 
-        if (personInformationScript.personName != "")
+        if (personInformationScript.personProfile.ReturnPersonName() != "")
         {
             signItemScriptableObject.peopleList = new List<string>();
-            signItemScriptableObject.peopleList.Add(personInformationScript.personName);
+            signItemScriptableObject.peopleList.Add(personInformationScript.personProfile.ReturnPersonName());
         }
         else
         {

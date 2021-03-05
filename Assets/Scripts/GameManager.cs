@@ -357,7 +357,7 @@ public class GameManager : MonoBehaviour, IPunObservable
         {
             for (int j = 0; j < listSigns[i].peopleList.Count; j++)
             {
-                if (listSigns[i].peopleList[j] == personInformationScript.personName)
+                if (listSigns[i].peopleList[j] == personInformationScript.personProfile.ReturnPersonName())
                 {
                     GameObject newSign = Instantiate(prefabOfSignItem, contentForDashboard.transform);
 
