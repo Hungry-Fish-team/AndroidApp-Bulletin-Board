@@ -48,12 +48,12 @@ namespace Photon.Chat
 
 
         // Sets up the socket implementations to use, depending on platform
-        [Conditional("SUPPORTED_UNITY")]
+        [System.Diagnostics.Conditional("SUPPORTED_UNITY")]
         private void ConfigUnitySockets()
         {
             Type websocketType = null;
             #if (UNITY_XBOXONE || UNITY_GAMECORE) && !UNITY_EDITOR
-            websocketType = Type.GetType("ExitGames.Client.Photon.SocketNativeSource, PhotonWebSocket", false);
+            websocketType = Type.GetType("ExitGames.Client.Photon.SocketNativeSource, PhotonRealtime", false);
             if (websocketType == null)
             {
                 websocketType = Type.GetType("ExitGames.Client.Photon.SocketNativeSource, Assembly-CSharp-firstpass", false);
@@ -64,7 +64,7 @@ namespace Photon.Chat
             }
             if (websocketType == null)
             {
-                UnityEngine.Debug.LogError("UNITY_XBOXONE is defined but peer could not find SocketNativeSource. Check your project files to make sure the native WSS implementation is available. Won't connect.");
+                UnityEngine.Debug.LogError("XBOX is defined but peer could not find SocketNativeSource. Check your project files to make sure the native WSS implementation is available. Won't connect.");
             }
             #else
             // to support WebGL export in Unity, we find and assign the SocketWebTcp class (if it's in the project).
@@ -86,7 +86,7 @@ namespace Photon.Chat
                 this.SocketImplementationConfig[ConnectionProtocol.WebSocketSecure] = websocketType;
             }
 
-            #if NET_4_6 && (UNITY_EDITOR || !ENABLE_IL2CPP)
+            #if NET_4_6 && (UNITY_EDITOR || !ENABLE_IL2CPP) && !NETFX_CORE
             this.SocketImplementationConfig[ConnectionProtocol.Udp] = typeof(SocketUdpAsync);
             this.SocketImplementationConfig[ConnectionProtocol.Tcp] = typeof(SocketTcpAsync);
             #endif

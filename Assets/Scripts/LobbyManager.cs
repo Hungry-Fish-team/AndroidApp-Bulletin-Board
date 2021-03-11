@@ -38,12 +38,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
             BGLoad_image.gameObject.SetActive(false);
 
-            if (GetComponent<PersonInformationScript>().personProfile.ReturnPersonName() != "") {
+            if (GetComponent<PersonInformationScript>().personProfile.ReturnPersonName() != null) {
                 PhotonNetwork.NickName = GetComponent<PersonInformationScript>().personProfile.ReturnPersonName();
             }
             else
             {
-                PhotonNetwork.NickName = "player" + Random.Range(0, 1000).ToString();
+                string newPersonName = "Person№" + Random.Range(0, 1000).ToString();
+                GetComponent<PersonInformationScript>().personProfile.LoadPersonName(newPersonName);
+                PhotonNetwork.NickName = newPersonName;
             }
 
             PhotonNetwork.JoinRandomRoom();
@@ -55,8 +57,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         StartCoroutine(checkInternetConnection());
 
         versionNum = Application.version;
-
-        string nickName = "Player" + Random.Range(0, 100);
 
         PhotonNetwork.AutomaticallySyncScene = true;
         //PhotonNetwork.NickName = nickName;
@@ -74,8 +74,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             Debug.Log("Ready");
         }
-
-        //PhotonPeer.RegisterType(Type customType, byte code, SerializeMethod serializeMethod, DeserializeMethod deserializeMethod)
     }
 
     public override void OnEnable()

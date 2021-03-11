@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using SimpleJSON;
 using System.IO;
 using Photon.Pun;
+using UnityEditor;
 
 public class GameManager : MonoBehaviour, IPunObservable
 {
@@ -242,20 +243,29 @@ public class GameManager : MonoBehaviour, IPunObservable
         }
     }
 
-    void InitializationAllObjects()
+    void AppSettings()
     {
-        //photonView = transform.GetComponent<PhotonView>();
-
         //Application.runInBackground = true;
 
-        animationScript = GameObject.Find("GameManager").GetComponent<AnimationScript>();
-        personInformationScript = GameObject.Find("GameManager").GetComponent<PersonInformationScript>();
+        //PlayerSettings.statusBarHidden = false;
+
+        //Screen.fullScreen = false;
 
         appVersionText.text = Application.version;
     }
 
+    void InitializationAllObjects()
+    {
+        //photonView = transform.GetComponent<PhotonView>();
+
+        animationScript = GameObject.Find("GameManager").GetComponent<AnimationScript>();
+        personInformationScript = GameObject.Find("GameManager").GetComponent<PersonInformationScript>();
+    }
+
     void Start()
     {
+        AppSettings();
+
         InitializationAllObjects();
 
         LoadObjestForDashboard();

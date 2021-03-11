@@ -4,9 +4,11 @@ Exit Games GmbH - www.photonengine.com - forum.photonengine.com
 
 
 
-Version 4.1.5.0 ()
+Version 4.1.5.0 (03. March 2021)
+    Updated: ChatPeer ConfigUnitySockets() to the analog of the Realtime API.
+    
+Version 4.1.5.0 (3. February 2021)
     Internal: AuthenticationValues.Token is now an object instead of a string (so some internal code changed). This enables the server to send a byte[], which is more effective than a string.
-
 
 Version 4.1.4.6 (16. November 2020)
     Added: ChatClient.PrivateChatHistoryLength field. If set before you connect, this can be used to limit the number of private messages when the server (re)subscribes the client to (still alive) a private chat channel.

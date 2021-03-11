@@ -13,6 +13,13 @@ public class PersonInformationScript : MonoBehaviour
         private string personName;
         private string personPassword;
         private int personAccessLevel;
+        private string personMail;
+
+        /**
+         * 1 - new person without name
+         * 2 - person without password
+         * 3 - registred person
+        **/
 
         //public personInformation()
         //{
@@ -31,22 +38,30 @@ public class PersonInformationScript : MonoBehaviour
             this.personName = name;
         }
 
-        public bool CheckPersonAccessLevel(int inputLevel)
+        public void SetNewPersonAccessLevel(int inputLevel)
         {
-            if (this.personAccessLevel >= inputLevel)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            this.personAccessLevel = inputLevel;
+        }
+
+        public int ReturnPersonAccessLevel()
+        {                
+            return this.personAccessLevel;
+        }
+
+        public string ReturnPersonMail()
+        {
+            return this.personMail;
+        }
+
+        public void LoadPersonMail(string personMail)
+        {
+            this.personMail = personMail;
         }
 
         public void PasswordInput(string input)
         {
             string passText = input;
-            Debug.Log(passText);
+            //Debug.Log(passText);
             string encryptPass = passwordEncryption(passText);
             Debug.Log(encryptPass);
             this.personPassword = encryptPass;
@@ -70,7 +85,7 @@ public class PersonInformationScript : MonoBehaviour
             return hashString.PadLeft(32, '0');
         }
 
-        public string ReturnPersonPassword()
+        public string ReturnPersonEncryptedPassword()
         {
             string personNameToSave = this.personName;
             string personPassword = this.personPassword;
@@ -90,7 +105,7 @@ public class PersonInformationScript : MonoBehaviour
             return personPasswordToSave;
         }
 
-        public void LoadPersonPassword(string password)
+        public void LoadPersonEncryptedPassword(string password)
         {
             if (password != null)
             {
@@ -117,7 +132,7 @@ public class PersonInformationScript : MonoBehaviour
 
     public personInformation personProfile = new personInformation();
 
-    public string fileForProfileSave;
+    string fileForProfileSave;
 
     private void LoadFiles()
     {
@@ -140,7 +155,8 @@ public class PersonInformationScript : MonoBehaviour
         JSONObject personDATA = new JSONObject();
 
         personDATA.Add("personName", personProfile.ReturnPersonName());
-        personDATA.Add("personPassword", personProfile.ReturnPersonPassword());
+        personDATA.Add("personMail", personProfile.ReturnPersonMail());
+        personDATA.Add("personPassword", personProfile.ReturnPersonEncryptedPassword());
 
         if (File.Exists(fileForProfileSave))
         {
@@ -159,7 +175,17 @@ public class PersonInformationScript : MonoBehaviour
             if (personDATA != null)
             {
                 personProfile.LoadPersonName(personDATA["personName"]);
-                personProfile.LoadPersonPassword(personDATA["personPassword"]);
+                personProfile.SetNewPersonAccessLevel(1);
+                personProfile.LoadPersonMail(personDATA["personMail"]);
+                personProfile.LoadPersonEncryptedPassword(personDATA["personPassword"]);
+                if (personProfile.ReturnPersonMail() != null && personProfile.ReturnPersonEncryptedPassword() != null) 
+                {
+                    personProfile.SetNewPersonAccessLevel(2);
+                }
+            }
+            else
+            {
+                personProfile.SetNewPersonAccessLevel(0);
             }
         }
     }
@@ -173,6 +199,6 @@ public class PersonInformationScript : MonoBehaviour
     {
         InitializationAllObjects();
 
-        personProfile.PasswordInput("Vovan");
+        //personProfile.PasswordInput("admin");
     }
 }
