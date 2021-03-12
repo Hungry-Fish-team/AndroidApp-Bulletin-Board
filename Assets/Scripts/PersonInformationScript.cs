@@ -8,7 +8,9 @@ using System.Text;
 
 public class PersonInformationScript : MonoBehaviour
 {
-    public class personInformation
+    RegistredPersonScript registredPersonScript;
+
+    public class PersonInformation
     {
         private string personName;
         private string personPassword;
@@ -63,7 +65,7 @@ public class PersonInformationScript : MonoBehaviour
             string passText = input;
             //Debug.Log(passText);
             string encryptPass = passwordEncryption(passText);
-            Debug.Log(encryptPass);
+            //Debug.Log(encryptPass);
             this.personPassword = encryptPass;
         }
 
@@ -125,12 +127,12 @@ public class PersonInformationScript : MonoBehaviour
                 }
 
                 this.personPassword = personPassword;
-                Debug.Log(personPassword);
+                //Debug.Log(personPassword);
             }
         }
     }
 
-    public personInformation personProfile = new personInformation();
+    public PersonInformation personProfile = new PersonInformation();
 
     string fileForProfileSave;
 
@@ -154,9 +156,9 @@ public class PersonInformationScript : MonoBehaviour
     {
         JSONObject personDATA = new JSONObject();
 
-        personDATA.Add("personName", personProfile.ReturnPersonName());
-        personDATA.Add("personMail", personProfile.ReturnPersonMail());
-        personDATA.Add("personPassword", personProfile.ReturnPersonEncryptedPassword());
+        personDATA.Add("PersonName", personProfile.ReturnPersonName());
+        personDATA.Add("PersonMail", personProfile.ReturnPersonMail());
+        personDATA.Add("PersonPassword", personProfile.ReturnPersonEncryptedPassword());
 
         if (File.Exists(fileForProfileSave))
         {
@@ -174,13 +176,16 @@ public class PersonInformationScript : MonoBehaviour
 
             if (personDATA != null)
             {
-                personProfile.LoadPersonName(personDATA["personName"]);
+                personProfile.LoadPersonName(personDATA["PersonName"]);
                 personProfile.SetNewPersonAccessLevel(1);
-                personProfile.LoadPersonMail(personDATA["personMail"]);
-                personProfile.LoadPersonEncryptedPassword(personDATA["personPassword"]);
+                personProfile.LoadPersonMail(personDATA["PersonMail"]);
+                personProfile.LoadPersonEncryptedPassword(personDATA["PersonPassword"]);
                 if (personProfile.ReturnPersonMail() != null && personProfile.ReturnPersonEncryptedPassword() != null) 
                 {
-                    personProfile.SetNewPersonAccessLevel(2);
+                    if (registredPersonScript.registeredPersons.IsThisPersonRegistered(personProfile))
+                    {
+                        personProfile.SetNewPersonAccessLevel(2);
+                    }
                 }
             }
             else
@@ -192,13 +197,15 @@ public class PersonInformationScript : MonoBehaviour
 
     private void InitializationAllObjects()
     {
+        registredPersonScript = GameObject.Find("GameManager").GetComponent<RegistredPersonScript>();
+
+        //StartCoroutine("WaitingLoadedBackUps");
+
         LoadAllDataFromFile();
     }
 
     private void Start()
     {
         InitializationAllObjects();
-
-        //personProfile.PasswordInput("admin");
     }
 }

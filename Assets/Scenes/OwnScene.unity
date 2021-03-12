@@ -1868,7 +1868,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 376.2981}
+  m_AnchoredPosition: {x: 0, y: 372.99988}
   m_SizeDelta: {x: -582.17303, y: 237.40356}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &438841126
@@ -3785,8 +3785,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -16.100586, y: 286}
-  m_SizeDelta: {x: -182.20691, y: 179.0747}
+  m_AnchoredPosition: {x: 0, y: 283.45996}
+  m_SizeDelta: {x: -179.73328, y: 179.0747}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1021739639
 MonoBehaviour:
@@ -7252,7 +7252,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -16.100586, y: 45}
+  m_AnchoredPosition: {x: 0, y: 45}
   m_SizeDelta: {x: -182.20691, y: 179.0747}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1773626283
@@ -7745,12 +7745,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1985190895}
+  - component: {fileID: 1985190900}
+  - component: {fileID: 1985190902}
   - component: {fileID: 1985190896}
   - component: {fileID: 1985190901}
   - component: {fileID: 1985190897}
   - component: {fileID: 1985190898}
   - component: {fileID: 1985190899}
-  - component: {fileID: 1985190900}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -7853,12 +7854,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1985190894}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70a9d269f57028c41aace68a1b78d341, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileForDashBoardSave: 
+  isBackUpWork: 0
 --- !u!114 &1985190901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7871,6 +7872,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4004e44b85064134899c1b3bc04003c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1985190902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1985190894}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3045cbe4c6bc4b6478dfbab5be53322e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isBackUpWork: 1
 --- !u!1 &2004044685
 GameObject:
   m_ObjectHideFlags: 0

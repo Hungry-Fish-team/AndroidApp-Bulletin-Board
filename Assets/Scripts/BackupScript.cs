@@ -9,6 +9,9 @@ public class BackupScript : MonoBehaviour
     GameManager gameManager;
     SignItemScriptableObject signItemScriptableObject;
 
+    [SerializeField]
+    bool isBackUpWork = true;
+
     void InitializationAllObjects()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -18,14 +21,17 @@ public class BackupScript : MonoBehaviour
     {
         InitializationAllObjects();
 
-        LoadAllDataFromFile();
+        if (isBackUpWork == true)
+        {
+            LoadAllDataFromFile();
 
-        gameManager.LoadObjestForDashboard();
+            gameManager.LoadObjestForDashboard();
+        }
     }
 
     private void OnApplicationQuit()
     {
-        if (transform.GetComponent<BackupScript>().isActiveAndEnabled == true)
+        if (isBackUpWork == true)
         {
             SaveAllDataToFile();
         }
@@ -47,7 +53,7 @@ public class BackupScript : MonoBehaviour
         //public string ownerEvent;
     }
 
-    public string fileForDashBoardSave;
+    string fileForDashBoardSave;
 
     private void LoadFiles()
     {

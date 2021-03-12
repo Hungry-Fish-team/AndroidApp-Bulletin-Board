@@ -13,6 +13,7 @@ public class LoginAndRegistrationScript : MonoBehaviour
 {
     GameManager gameManager;
     PersonInformationScript personInformationScript;
+    RegistredPersonScript registredPersonScript;
 
     [SerializeField]
     InputField loginAndRegistrationInputField;
@@ -42,6 +43,7 @@ public class LoginAndRegistrationScript : MonoBehaviour
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         personInformationScript = GameObject.Find("GameManager").GetComponent<PersonInformationScript>();
+        registredPersonScript = GameObject.Find("GameManager").GetComponent<RegistredPersonScript>();
 
         personName = personInformationScript.personProfile.ReturnPersonName();
         loginAndRegistrationInputField.text = personName;
@@ -110,6 +112,10 @@ public class LoginAndRegistrationScript : MonoBehaviour
         {
             PhotonNetwork.NickName = personName;
 
+            registredPersonScript.registeredPersons.ChangePersonName(personInformationScript.personProfile, personName);
+
+            registredPersonScript.registeredPersons.SaveAllDataToFile();
+
             personInformationScript.personProfile.LoadPersonName(personName);
 
             personInformationScript.SaveAllDataToFile();
@@ -133,7 +139,7 @@ public class LoginAndRegistrationScript : MonoBehaviour
 
     private void FirstStateOfMailConf()
     {
-        Debug.Log("First");
+        //Debug.Log("First");
         mailInputField.gameObject.SetActive(true);
         mailCodeInputField.gameObject.SetActive(false);
         sendCodeAgainButton.gameObject.SetActive(true);
@@ -144,7 +150,7 @@ public class LoginAndRegistrationScript : MonoBehaviour
 
     private void SecondStateOfMailConf()
     {
-        Debug.Log("Second");
+        //Debug.Log("Second");
         mailInputField.gameObject.SetActive(true);
         mailInputField.interactable = false;
         mailCodeInputField.gameObject.SetActive(true);
@@ -155,7 +161,7 @@ public class LoginAndRegistrationScript : MonoBehaviour
 
     private void ThirdStateOfMailConf()
     {
-        Debug.Log("Third");
+        //Debug.Log("Third");
         mailInputField.gameObject.SetActive(true);
         mailInputField.interactable = false;
         mailCodeInputField.gameObject.SetActive(false);
@@ -166,7 +172,7 @@ public class LoginAndRegistrationScript : MonoBehaviour
 
     private void FourthStateOfMailConf()
     {
-        Debug.Log("Fourt");
+        //Debug.Log("Fourt");
         mailInputField.gameObject.SetActive(false);
         mailCodeInputField.gameObject.SetActive(false);
         sendCodeAgainButton.gameObject.SetActive(false);
@@ -176,7 +182,7 @@ public class LoginAndRegistrationScript : MonoBehaviour
 
     private void FifthStateOfMailConf()
     {
-        Debug.Log("Fifth");
+        //Debug.Log("Fifth");
         mailInputField.gameObject.SetActive(false);
         mailCodeInputField.gameObject.SetActive(false);
         sendCodeAgainButton.gameObject.SetActive(false);
@@ -274,6 +280,11 @@ public class LoginAndRegistrationScript : MonoBehaviour
             personInformationScript.personProfile.PasswordInput(passwordInputField.text);
             personInformationScript.personProfile.SetNewPersonAccessLevel(2);
             personInformationScript.SaveAllDataToFile();
+
+            registredPersonScript.registeredPersons.AddNewRegisteredPerson(personInformationScript.personProfile);
+
+            registredPersonScript.registeredPersons.SaveAllDataToFile();
+
             FourthStateOfMailConf();
         }
     }
