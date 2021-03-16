@@ -46,13 +46,20 @@ public class PersonInformationScript : MonoBehaviour
         }
 
         public int ReturnPersonAccessLevel()
-        {                
+        {
             return this.personAccessLevel;
         }
 
         public string ReturnPersonMail()
         {
-            return this.personMail;
+            if (personMail != "")
+            {
+                return this.personMail;
+            }
+            else
+            {
+                return "-";
+            }
         }
 
         public void LoadPersonMail(string personMail)
@@ -60,16 +67,22 @@ public class PersonInformationScript : MonoBehaviour
             this.personMail = personMail;
         }
 
+        public void DeleteProfile()
+        {
+            personPassword = null;
+            personAccessLevel = 1;
+        }
+
         public void PasswordInput(string input)
         {
             string passText = input;
             //Debug.Log(passText);
-            string encryptPass = passwordEncryption(passText);
+            string encryptPass = PasswordEncryption(passText);
             //Debug.Log(encryptPass);
             this.personPassword = encryptPass;
         }
 
-        string passwordEncryption(string passwordString)
+        public string PasswordEncryption(string passwordString)
         {
             UTF8Encoding ue = new UTF8Encoding();
             byte[] bytes = ue.GetBytes(passwordString);
@@ -87,43 +100,95 @@ public class PersonInformationScript : MonoBehaviour
             return hashString.PadLeft(32, '0');
         }
 
+        public string ReturnPersonPassword()
+        {
+            return personPassword;
+        }
+
         public string ReturnPersonEncryptedPassword()
         {
-            string personNameToSave = this.personName;
+            string personName = this.personName;
             string personPassword = this.personPassword;
             string personPasswordToSave = null;
             int encryptInt = 0;
 
-            for (int i = 0; i < personNameToSave.Length; i++)
+            if (personPassword != null)
             {
-                encryptInt += (int)personNameToSave[i];
+                if (personName != null)
+                {
+                    for (int i = 0; i < personName.Length; i++)
+                    {
+                        encryptInt += (int)personName[i];
+                    }
+                }
+                for (int i = 0; i < personPassword.Length; i++)
+                {
+                    personPasswordToSave += (char)((int)personPassword[i] + encryptInt);
+                }
             }
-
-            for (int i = 0; i < personPassword.Length; i++)
+            else
             {
-                personPasswordToSave += (char)((int)personPassword[i] + encryptInt);
+                personPasswordToSave = "-";
             }
 
             return personPasswordToSave;
+        }
+
+        public string ReturnPersonEncryptedPassword(string personPassword)
+        {
+            string personName = this.personName;
+            string personPasswordToSave = null;
+            int encryptInt = 0;
+
+            if (personPassword != null)
+            {
+                for (int i = 0; i < personName.Length; i++)
+                {
+                    encryptInt += (int)personName[i];
+                }
+
+                for (int i = 0; i < personPassword.Length; i++)
+                {
+                    personPasswordToSave += (char)((int)personPassword[i] + encryptInt);
+                }
+            }
+            else
+            {
+                personPasswordToSave = "-";
+            }
+
+            return personPasswordToSave;
+        }
+
+        public void LoadPersonPassword(string personPassword)
+        {
+            this.personPassword = personPassword;
         }
 
         public void LoadPersonEncryptedPassword(string password)
         {
             if (password != null)
             {
-                string personNameToSave = this.personName;
+                string personName = this.personName;
                 string personPassword = null;
                 string personPasswordFromSave = password;
                 int encryptInt = 0;
 
-                for (int i = 0; i < personNameToSave.Length; i++)
+                for (int i = 0; i < personName.Length; i++)
                 {
-                    encryptInt += (int)personNameToSave[i];
+                    encryptInt += (int)personName[i];
                 }
 
-                for (int i = 0; i < personPasswordFromSave.Length; i++)
+                if (password != "-")
                 {
-                    personPassword += (char)((int)personPasswordFromSave[i] - encryptInt);
+                    for (int i = 0; i < personPasswordFromSave.Length; i++)
+                    {
+                        personPassword += (char)((int)personPasswordFromSave[i] - encryptInt);
+                    }
+                }
+                else
+                {
+                    personPassword = null;
                 }
 
                 this.personPassword = personPassword;
@@ -164,6 +229,8 @@ public class PersonInformationScript : MonoBehaviour
         {
             File.WriteAllText(fileForProfileSave, personDATA.ToString());
         }
+
+        Debug.Log("Person Save");
     }
 
     public void LoadAllDataFromFile()
@@ -180,7 +247,7 @@ public class PersonInformationScript : MonoBehaviour
                 personProfile.SetNewPersonAccessLevel(1);
                 personProfile.LoadPersonMail(personDATA["PersonMail"]);
                 personProfile.LoadPersonEncryptedPassword(personDATA["PersonPassword"]);
-                if (personProfile.ReturnPersonMail() != null && personProfile.ReturnPersonEncryptedPassword() != null) 
+                if (personProfile.ReturnPersonMail() != null && personProfile.ReturnPersonEncryptedPassword() != null)
                 {
                     if (registredPersonScript.registeredPersons.IsThisPersonRegistered(personProfile))
                     {

@@ -14,14 +14,23 @@ public class RegistredPersonScript : MonoBehaviour
     {
         private List<PersonInformationScript.PersonInformation> allPersonsInformation = new List<PersonInformationScript.PersonInformation>();
 
-        public void AddNewRegisteredPerson(PersonInformationScript.PersonInformation newPerson)
+        public void AddNewRegisteredPerson(PersonInformationScript.PersonInformation person)
         {
+            PersonInformationScript.PersonInformation newPerson = person;
+
             allPersonsInformation.Add(newPerson);
         }
 
         public void DeleteRegisteredPerson(PersonInformationScript.PersonInformation newPerson)
         {
-            allPersonsInformation.Remove(newPerson);
+            for (int i = 0; i < allPersonsInformation.Count; i++)
+            {
+                Debug.Log(allPersonsInformation[i].ReturnPersonMail());
+                if (newPerson.ReturnPersonMail() == allPersonsInformation[i].ReturnPersonMail())
+                {
+                    allPersonsInformation.RemoveAt(i);
+                }
+            }
         }
 
         public bool IsThisPersonRegistered(PersonInformationScript.PersonInformation newPerson)
@@ -34,6 +43,53 @@ public class RegistredPersonScript : MonoBehaviour
                 }
             }
             return false;
+        }
+
+        public bool IsThisPersonRegistered(string mail)
+        {
+            foreach (PersonInformationScript.PersonInformation personInformation in allPersonsInformation)
+            {
+                //Debug.Log(personInformation.ReturnPersonMail() + " " + personInformation.ReturnPersonEncryptedPassword());
+
+                //Debug.Log(mail + " " + password);
+
+                if (personInformation.ReturnPersonMail() == mail)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool IsThisPersonRegistered(string mail, string password)
+        {
+            foreach (PersonInformationScript.PersonInformation personInformation in allPersonsInformation)
+            {
+                //Debug.Log(personInformation.ReturnPersonMail() + " " + personInformation.ReturnPersonEncryptedPassword());
+
+                //Debug.Log(mail + " " + password);
+
+                if (personInformation.ReturnPersonMail() == mail && personInformation.ReturnPersonPassword() == password)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public PersonInformationScript.PersonInformation ReturnRegisteredPersonFromList(string mail, string password)
+        {
+            foreach (PersonInformationScript.PersonInformation personInformation in allPersonsInformation)
+            {
+                Debug.Log(personInformation.ReturnPersonMail() + " " + personInformation.ReturnPersonPassword());
+                Debug.Log(mail + " " + password);
+
+                if (personInformation.ReturnPersonMail() == mail && personInformation.ReturnPersonPassword() == password)
+                {
+                    return personInformation;
+                }
+            }
+            return null;
         }
 
         public void ChangePersonName(PersonInformationScript.PersonInformation newPerson, string newName)
@@ -52,7 +108,11 @@ public class RegistredPersonScript : MonoBehaviour
         {
             foreach (PersonInformationScript.PersonInformation personInformation in allPersonsInformation)
             {
-                Debug.Log(personInformation.ReturnPersonName() + " " + personInformation.ReturnPersonEncryptedPassword() + " " + personInformation.ReturnPersonMail());
+                if (personInformation.ReturnPersonName() != null)
+                {
+                    //Debug.Log(personInformation.ReturnPersonName());
+                    Debug.Log(personInformation.ReturnPersonName() + " " + personInformation.ReturnPersonMail() + " " + personInformation.ReturnPersonEncryptedPassword());
+                }
             }
         }
 
@@ -76,42 +136,54 @@ public class RegistredPersonScript : MonoBehaviour
 
         public void SaveAllDataToFile()
         {
-            JSONObject personDATA = new JSONObject();
+            JSONArray allRegisteredPerson = new JSONArray();
 
             foreach (PersonInformationScript.PersonInformation personInformation in allPersonsInformation)
             {
+                JSONObject personDATA = new JSONObject();
+
                 personDATA.Add("PersonName", personInformation.ReturnPersonName());
                 personDATA.Add("PersonMail", personInformation.ReturnPersonMail());
-                personDATA.Add("PersonPassword", personInformation.ReturnPersonEncryptedPassword());
+                personDATA.Add("PersonPassword", personInformation.ReturnPersonPassword());
+
+                allRegisteredPerson.Add(personDATA);
             }
 
             if (File.Exists(fileForProfileSave))
             {
-                File.WriteAllText(fileForProfileSave, personDATA.ToString());
+                File.WriteAllText(fileForProfileSave, allRegisteredPerson.ToString());
             }
+
+            Debug.Log("Registered Person");
         }
 
         public void LoadAllDataFromFile()
         {
             LoadFiles();
 
-            if ((JSONObject)JSON.Parse(File.ReadAllText(fileForProfileSave)) != null)
+            if ((JSONArray)JSON.Parse(File.ReadAllText(fileForProfileSave)) != null)
             {
-                JSONObject personDATA = (JSONObject)JSON.Parse(File.ReadAllText(fileForProfileSave));
+                JSONArray personDATA = (JSONArray)JSON.Parse(File.ReadAllText(fileForProfileSave));
 
                 if (personDATA != null)
                 {
-                    //Debug.Log(personDATA.Count);
+                    Debug.Log(personDATA.Count);
 
                     int i = 0;
 
-                    while (i < personDATA.Count / 3)
+                    while (i < personDATA.Count)
                     {
                         PersonInformationScript.PersonInformation personInformation = new PersonInformationScript.PersonInformation();
 
-                        personInformation.LoadPersonName(personDATA["PersonName"]);
-                        personInformation.LoadPersonMail(personDATA["PersonMail"]);
-                        personInformation.LoadPersonEncryptedPassword(personDATA["PersonPassword"]);
+                        string personName =  personDATA.AsArray[i]["PersonName"];
+                        string personMail =  personDATA.AsArray[i]["PersonMail"];
+                        string personPassword =  personDATA.AsArray[i]["PersonPassword"];
+
+                        //Debug.Log(personName + " " + personMail + " " + personPassword);
+
+                        personInformation.LoadPersonName(personName);
+                        personInformation.LoadPersonMail(personMail);
+                        personInformation.LoadPersonPassword(personPassword);
 
                         allPersonsInformation.Add(personInformation);
 

@@ -29,6 +29,12 @@ public class LoginAndRegistrationScript : MonoBehaviour
     InputField passwordInputField;
     [SerializeField]
     Button registerButton;
+    [SerializeField]
+    Button leaveFormProfileButton;
+    [SerializeField]
+    Button deleteProfileButton;
+    [SerializeField]
+    Button joinProfileButton;
 
     [SerializeField]
     string personName;
@@ -46,7 +52,42 @@ public class LoginAndRegistrationScript : MonoBehaviour
         registredPersonScript = GameObject.Find("GameManager").GetComponent<RegistredPersonScript>();
 
         personName = personInformationScript.personProfile.ReturnPersonName();
-        loginAndRegistrationInputField.text = personName;
+        loginAndRegistrationInputField.text = personName; 
+        mailInputField.text = personInformationScript.personProfile.ReturnPersonMail();
+
+        ReloadedInformationForInputField();
+    }
+
+    void ReloadedInformationForInputField()
+    {
+        if (personInformationScript.personProfile.ReturnPersonAccessLevel() < 2)
+        {
+            loginAndRegistrationInputField.text = personName;
+            if (personInformationScript.personProfile.ReturnPersonMail() == null)
+            {
+                mailInputField.text = "";
+
+                FirstStateOfMailConf();
+            }
+            else
+            {
+                mailInputField.text = personInformationScript.personProfile.ReturnPersonMail();
+                passwordInputField.text = "";
+
+                if(registredPersonScript.registeredPersons.IsThisPersonRegistered(mailInputField.text)){
+
+                    ThirdStateOfMailConf();
+                }
+                else
+                {
+                    FirstStateOfMailConf();
+                }
+            }
+        }
+        else
+        {
+            FifthStateOfMailConf();
+        }
     }
 
     void InitializationAllObjects()
@@ -57,15 +98,6 @@ public class LoginAndRegistrationScript : MonoBehaviour
     void Start()
     {
         InitializationAllObjects();
-
-        if (personInformationScript.personProfile.ReturnPersonAccessLevel() < 2)
-        {
-            FirstStateOfMailConf();
-        }
-        else
-        {
-            FifthStateOfMailConf();
-        }
     }
 
     private void Update()
@@ -81,12 +113,20 @@ public class LoginAndRegistrationScript : MonoBehaviour
 
             if (personInformationScript.personProfile.ReturnPersonAccessLevel() < 2)
             {
-                if (mailInputField.text != null)
+                if (mailInputField.text != "")
                 {
-                    if(waitingCode == true)
+                    if (registredPersonScript.registeredPersons.IsThisPersonRegistered(mailInputField.text))
+                    {
+                        SixthStateOfMailConf();
+                    } 
+                    else if(waitingCode == true)
                     {
                         WaitingTrueCode(personMail, newCode);
                     }
+                }
+                else
+                {
+                    FirstStateOfMailConf();
                 }
             }
             else
@@ -145,29 +185,41 @@ public class LoginAndRegistrationScript : MonoBehaviour
         sendCodeAgainButton.gameObject.SetActive(true);
         sendCodeAgainButton.interactable = true;
         passwordInputField.gameObject.SetActive(false);
+        registerButton.gameObject.SetActive(false);
         registerButton.interactable = false;
+        leaveFormProfileButton.gameObject.SetActive(false);
+        deleteProfileButton.gameObject.SetActive(false);
+        joinProfileButton.gameObject.SetActive(false);
     }
 
     private void SecondStateOfMailConf()
     {
         //Debug.Log("Second");
         mailInputField.gameObject.SetActive(true);
-        mailInputField.interactable = false;
+        //mailInputField.interactable = false;
         mailCodeInputField.gameObject.SetActive(true);
         sendCodeAgainButton.gameObject.SetActive(false);
         passwordInputField.gameObject.SetActive(false);
+        registerButton.gameObject.SetActive(false);
         registerButton.interactable = false;
+        leaveFormProfileButton.gameObject.SetActive(false);
+        deleteProfileButton.gameObject.SetActive(false);
+        joinProfileButton.gameObject.SetActive(false);
     }
 
     private void ThirdStateOfMailConf()
     {
         //Debug.Log("Third");
         mailInputField.gameObject.SetActive(true);
-        mailInputField.interactable = false;
+        //mailInputField.interactable = false;
         mailCodeInputField.gameObject.SetActive(false);
         sendCodeAgainButton.gameObject.SetActive(false);
         passwordInputField.gameObject.SetActive(true);
+        registerButton.gameObject.SetActive(true);
         registerButton.interactable = true;
+        leaveFormProfileButton.gameObject.SetActive(false);
+        deleteProfileButton.gameObject.SetActive(false);
+        joinProfileButton.gameObject.SetActive(false);
     }
 
     private void FourthStateOfMailConf()
@@ -178,6 +230,9 @@ public class LoginAndRegistrationScript : MonoBehaviour
         sendCodeAgainButton.gameObject.SetActive(false);
         passwordInputField.gameObject.SetActive(false);
         registerButton.interactable = false;
+        leaveFormProfileButton.gameObject.SetActive(false);
+        deleteProfileButton.gameObject.SetActive(false);
+        joinProfileButton.gameObject.SetActive(false);
     }
 
     private void FifthStateOfMailConf()
@@ -188,6 +243,22 @@ public class LoginAndRegistrationScript : MonoBehaviour
         sendCodeAgainButton.gameObject.SetActive(false);
         passwordInputField.gameObject.SetActive(false);
         registerButton.gameObject.SetActive(false);
+        leaveFormProfileButton.gameObject.SetActive(true);
+        deleteProfileButton.gameObject.SetActive(true);
+        joinProfileButton.gameObject.SetActive(false);
+    }
+
+    private void SixthStateOfMailConf()
+    {
+        //Debug.Log("Fifth");
+        mailInputField.gameObject.SetActive(true);
+        mailCodeInputField.gameObject.SetActive(false);
+        sendCodeAgainButton.gameObject.SetActive(false);
+        passwordInputField.gameObject.SetActive(true);
+        registerButton.gameObject.SetActive(false);
+        leaveFormProfileButton.gameObject.SetActive(false);
+        deleteProfileButton.gameObject.SetActive(false);
+        joinProfileButton.gameObject.SetActive(true);
     }
 
     private string FindTypeOfProfileMail(string mail)
@@ -277,6 +348,7 @@ public class LoginAndRegistrationScript : MonoBehaviour
     {
         if (personInformationScript.personProfile.ReturnPersonMail() != "" && passwordInputField.text != null)
         {
+            personInformationScript.personProfile.LoadPersonName("Person№" + Random.Range(0, 1000).ToString());
             personInformationScript.personProfile.PasswordInput(passwordInputField.text);
             personInformationScript.personProfile.SetNewPersonAccessLevel(2);
             personInformationScript.SaveAllDataToFile();
@@ -285,7 +357,59 @@ public class LoginAndRegistrationScript : MonoBehaviour
 
             registredPersonScript.registeredPersons.SaveAllDataToFile();
 
+            loginAndRegistrationInputField.text = personInformationScript.personProfile.ReturnPersonName();
+
             FourthStateOfMailConf();
+        }
+    }
+
+    public void LeaveFromProfileFunc()
+    {
+        personInformationScript.personProfile.DeleteProfile();
+
+        personInformationScript.SaveAllDataToFile();
+
+        ReloadedInformationForInputField();
+
+        //SixthStateOfMailConf();
+    }
+
+    public void DeleteProfileFunc()
+    {
+        registredPersonScript.registeredPersons.DeleteRegisteredPerson(personInformationScript.personProfile);
+
+        registredPersonScript.registeredPersons.ReturnAllRegisteredPersonsToConsole();
+
+        registredPersonScript.registeredPersons.SaveAllDataToFile();
+
+        personInformationScript.personProfile.DeleteProfile();
+
+        personInformationScript.SaveAllDataToFile();
+
+        FirstStateOfMailConf();
+    }
+
+    public void JoinProfile()
+    {
+        if(personInformationScript.personProfile.ReturnPersonMail() != "" && passwordInputField.text != null)
+        {
+            personInformationScript.personProfile.LoadPersonMail(mailInputField.text);
+
+            Debug.Log(registredPersonScript.registeredPersons.IsThisPersonRegistered(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text)));
+
+            Debug.Log(personInformationScript.personProfile.PasswordEncryption(passwordInputField.text));
+
+            if (registredPersonScript.registeredPersons.IsThisPersonRegistered(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text)))
+            {
+                personInformationScript.personProfile.LoadPersonName(registredPersonScript.registeredPersons.ReturnRegisteredPersonFromList(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text)).ReturnPersonName());
+
+                loginAndRegistrationInputField.text = personInformationScript.personProfile.ReturnPersonName();
+                personInformationScript.personProfile.PasswordInput(passwordInputField.text);
+                personInformationScript.personProfile.SetNewPersonAccessLevel(2);
+                personInformationScript.SaveAllDataToFile();
+
+                FourthStateOfMailConf();
+            }
         }
     }
 }
