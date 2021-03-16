@@ -5,6 +5,7 @@ using UnityEngine;
 public class AnimationScript : MonoBehaviour
 {
     GameManager gameManager;
+    PersonInformationScript personInformationScript;
 
     public GameObject menuObject;
     public GameObject eventObject;
@@ -14,6 +15,7 @@ public class AnimationScript : MonoBehaviour
     void InitializationAllObjects()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        personInformationScript = GameObject.Find("GameManager").GetComponent<PersonInformationScript>();
     }
 
     void Start()

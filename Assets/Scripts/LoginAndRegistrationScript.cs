@@ -13,7 +13,7 @@ public class LoginAndRegistrationScript : MonoBehaviour
 {
     GameManager gameManager;
     PersonInformationScript personInformationScript;
-    RegistredPersonScript registredPersonScript;
+    RegisteredPersonScript registeredPersonScript;
 
     [SerializeField]
     InputField loginAndRegistrationInputField;
@@ -49,7 +49,7 @@ public class LoginAndRegistrationScript : MonoBehaviour
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         personInformationScript = GameObject.Find("GameManager").GetComponent<PersonInformationScript>();
-        registredPersonScript = GameObject.Find("GameManager").GetComponent<RegistredPersonScript>();
+        registeredPersonScript = GameObject.Find("GameManager").GetComponent<RegisteredPersonScript>();
 
         personName = personInformationScript.personProfile.ReturnPersonName();
         loginAndRegistrationInputField.text = personName; 
@@ -74,7 +74,7 @@ public class LoginAndRegistrationScript : MonoBehaviour
                 mailInputField.text = personInformationScript.personProfile.ReturnPersonMail();
                 passwordInputField.text = "";
 
-                if(registredPersonScript.registeredPersons.IsThisPersonRegistered(mailInputField.text)){
+                if(registeredPersonScript.registeredPersons.IsThisPersonRegistered(mailInputField.text)){
 
                     ThirdStateOfMailConf();
                 }
@@ -115,7 +115,7 @@ public class LoginAndRegistrationScript : MonoBehaviour
             {
                 if (mailInputField.text != "")
                 {
-                    if (registredPersonScript.registeredPersons.IsThisPersonRegistered(mailInputField.text))
+                    if (registeredPersonScript.registeredPersons.IsThisPersonRegistered(mailInputField.text))
                     {
                         SixthStateOfMailConf();
                     } 
@@ -152,9 +152,9 @@ public class LoginAndRegistrationScript : MonoBehaviour
         {
             PhotonNetwork.NickName = personName;
 
-            registredPersonScript.registeredPersons.ChangePersonName(personInformationScript.personProfile, personName);
+            registeredPersonScript.registeredPersons.ChangePersonName(personInformationScript.personProfile, personName);
 
-            registredPersonScript.registeredPersons.SaveAllDataToFile();
+            registeredPersonScript.registeredPersons.SaveAllDataToFile();
 
             personInformationScript.personProfile.LoadPersonName(personName);
 
@@ -353,9 +353,9 @@ public class LoginAndRegistrationScript : MonoBehaviour
             personInformationScript.personProfile.SetNewPersonAccessLevel(2);
             personInformationScript.SaveAllDataToFile();
 
-            registredPersonScript.registeredPersons.AddNewRegisteredPerson(personInformationScript.personProfile);
+            registeredPersonScript.registeredPersons.AddNewRegisteredPerson(personInformationScript.personProfile);
 
-            registredPersonScript.registeredPersons.SaveAllDataToFile();
+            registeredPersonScript.registeredPersons.SaveAllDataToFile();
 
             loginAndRegistrationInputField.text = personInformationScript.personProfile.ReturnPersonName();
 
@@ -367,6 +367,8 @@ public class LoginAndRegistrationScript : MonoBehaviour
     {
         personInformationScript.personProfile.DeleteProfile();
 
+        //personInformationScript.personProfile.SetNewPersonAccessLevel(1);
+
         personInformationScript.SaveAllDataToFile();
 
         ReloadedInformationForInputField();
@@ -376,11 +378,11 @@ public class LoginAndRegistrationScript : MonoBehaviour
 
     public void DeleteProfileFunc()
     {
-        registredPersonScript.registeredPersons.DeleteRegisteredPerson(personInformationScript.personProfile);
+        registeredPersonScript.registeredPersons.DeleteRegisteredPerson(personInformationScript.personProfile);
 
-        registredPersonScript.registeredPersons.ReturnAllRegisteredPersonsToConsole();
+        registeredPersonScript.registeredPersons.ReturnAllRegisteredPersonsToConsole();
 
-        registredPersonScript.registeredPersons.SaveAllDataToFile();
+        registeredPersonScript.registeredPersons.SaveAllDataToFile();
 
         personInformationScript.personProfile.DeleteProfile();
 
@@ -395,17 +397,20 @@ public class LoginAndRegistrationScript : MonoBehaviour
         {
             personInformationScript.personProfile.LoadPersonMail(mailInputField.text);
 
-            Debug.Log(registredPersonScript.registeredPersons.IsThisPersonRegistered(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text)));
+            Debug.Log(registeredPersonScript.registeredPersons.IsThisPersonRegistered(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text)));
 
             Debug.Log(personInformationScript.personProfile.PasswordEncryption(passwordInputField.text));
 
-            if (registredPersonScript.registeredPersons.IsThisPersonRegistered(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text)))
+            if (registeredPersonScript.registeredPersons.IsThisPersonRegistered(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text)))
             {
-                personInformationScript.personProfile.LoadPersonName(registredPersonScript.registeredPersons.ReturnRegisteredPersonFromList(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text)).ReturnPersonName());
+                personInformationScript.personProfile.LoadPersonName(registeredPersonScript.registeredPersons.ReturnRegisteredPersonFromList(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text)).ReturnPersonName());
 
                 loginAndRegistrationInputField.text = personInformationScript.personProfile.ReturnPersonName();
+                
                 personInformationScript.personProfile.PasswordInput(passwordInputField.text);
+
                 personInformationScript.personProfile.SetNewPersonAccessLevel(2);
+
                 personInformationScript.SaveAllDataToFile();
 
                 FourthStateOfMailConf();

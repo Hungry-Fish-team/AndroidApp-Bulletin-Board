@@ -1201,6 +1201,7 @@ GameObject:
   m_Component:
   - component: {fileID: 206493077}
   - component: {fileID: 206493078}
+  - component: {fileID: 206493079}
   m_Layer: 5
   m_Name: Menu
   m_TagString: Untagged
@@ -1248,6 +1249,22 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &206493079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 206493076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58cb2ad49d877f34bba55a35254d605e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  createNewEventButton: {fileID: 1352907205}
+  joinedEventButton: {fileID: 1447626704}
+  loginButton: {fileID: 1707507834}
+  appVersionText: {fileID: 1983138603}
 --- !u!1 &243176928
 GameObject:
   m_ObjectHideFlags: 0
@@ -8285,7 +8302,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fb8182148528b44f90d57e0fa9e581d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  appVersionText: {fileID: 1983138603}
   loadInfoScript: {fileID: 1239132868}
   listSigns: []
   prefabOfSignItem: {fileID: 3461770587137528662, guid: 57f03f18c41dd414f94f09c62e77d93f,

@@ -5,7 +5,7 @@ using Photon.Pun;
 using SimpleJSON;
 using System.IO;
 
-public class RegistredPersonScript : MonoBehaviour
+public class RegisteredPersonScript : MonoBehaviour
 {
     [SerializeField]
     bool isBackUpWork = true;

@@ -8,7 +8,7 @@ using System.Text;
 
 public class PersonInformationScript : MonoBehaviour
 {
-    RegistredPersonScript registredPersonScript;
+    RegisteredPersonScript registeredPersonScript;
 
     public class PersonInformation
     {
@@ -20,7 +20,7 @@ public class PersonInformationScript : MonoBehaviour
         /**
          * 1 - new person without name
          * 2 - person without password
-         * 3 - registred person
+         * 3 - registered person
         **/
 
         //public personInformation()
@@ -40,14 +40,26 @@ public class PersonInformationScript : MonoBehaviour
             this.personName = name;
         }
 
-        public void SetNewPersonAccessLevel(int inputLevel)
+        public void SetNewPersonAccessLevel(int personAccessLevel)
         {
-            this.personAccessLevel = inputLevel;
+            this.personAccessLevel = personAccessLevel;
         }
 
         public int ReturnPersonAccessLevel()
         {
             return this.personAccessLevel;
+        }
+
+        public void ReloadPersonAccessLevel()
+        {
+            if (personPassword != null)
+            {
+                personAccessLevel = 2;
+            }
+            else
+            {
+                personAccessLevel = 1;
+            }
         }
 
         public string ReturnPersonMail()
@@ -249,7 +261,7 @@ public class PersonInformationScript : MonoBehaviour
                 personProfile.LoadPersonEncryptedPassword(personDATA["PersonPassword"]);
                 if (personProfile.ReturnPersonMail() != null && personProfile.ReturnPersonEncryptedPassword() != null)
                 {
-                    if (registredPersonScript.registeredPersons.IsThisPersonRegistered(personProfile))
+                    if (registeredPersonScript.registeredPersons.IsThisPersonRegistered(personProfile))
                     {
                         personProfile.SetNewPersonAccessLevel(2);
                     }
@@ -264,7 +276,7 @@ public class PersonInformationScript : MonoBehaviour
 
     private void InitializationAllObjects()
     {
-        registredPersonScript = GameObject.Find("GameManager").GetComponent<RegistredPersonScript>();
+        registeredPersonScript = GameObject.Find("GameManager").GetComponent<RegisteredPersonScript>();
 
         //StartCoroutine("WaitingLoadedBackUps");
 

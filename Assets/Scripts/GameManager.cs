@@ -11,11 +11,6 @@ public class GameManager : MonoBehaviour, IPunObservable
 {
     PersonInformationScript personInformationScript;
 
-    [SerializeField]
-    Text appVersionText;
-
-    private PhotonView photonView;
-
     AnimationScript animationScript;
     [SerializeField]
     LoadInfoScript loadInfoScript;
@@ -250,8 +245,6 @@ public class GameManager : MonoBehaviour, IPunObservable
         //PlayerSettings.statusBarHidden = false;
 
         //Screen.fullScreen = false;
-
-        appVersionText.text = Application.version;
     }
 
     void InitializationAllObjects()
