@@ -23,12 +23,17 @@ public class PersonInformationScript : MonoBehaviour
          * 3 - registered person
         **/
 
-        //public personInformation()
-        //{
-        //    personName = null;
-        //    personPassword = null;
-        //    personAccessLevel = 0;
-        //}
+        public PersonInformation()
+        {
+        }
+
+        public PersonInformation(string personName, string personMail, string personPassword)
+        {
+            this.personName = personName;
+            this.personMail = personMail;
+            this.personPassword = personPassword;
+            personAccessLevel = 2;
+        }
 
         public string ReturnPersonName()
         {

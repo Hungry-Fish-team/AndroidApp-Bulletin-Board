@@ -21,12 +21,31 @@ public class RegisteredPersonScript : MonoBehaviour
             allPersonsInformation.Add(newPerson);
         }
 
+        public void AddNewRegisteredPerson(string personName, string personMail, string personPassword)
+        {
+            PersonInformationScript.PersonInformation newPerson = new PersonInformationScript.PersonInformation(personName, personMail, personPassword);
+
+            allPersonsInformation.Add(newPerson);
+        }
+
         public void DeleteRegisteredPerson(PersonInformationScript.PersonInformation newPerson)
         {
             for (int i = 0; i < allPersonsInformation.Count; i++)
             {
-                Debug.Log(allPersonsInformation[i].ReturnPersonMail());
+                //Debug.Log(allPersonsInformation[i].ReturnPersonMail());
                 if (newPerson.ReturnPersonMail() == allPersonsInformation[i].ReturnPersonMail())
+                {
+                    allPersonsInformation.RemoveAt(i);
+                }
+            }
+        }
+
+        public void DeleteRegisteredPerson(string personMail)
+        {
+            for (int i = 0; i < allPersonsInformation.Count; i++)
+            {
+                //Debug.Log(allPersonsInformation[i].ReturnPersonMail());
+                if (personMail == allPersonsInformation[i].ReturnPersonMail())
                 {
                     allPersonsInformation.RemoveAt(i);
                 }

@@ -8,6 +8,7 @@ using System.Net.Mail;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Mime;
+using Photon.Realtime;
 
 public class LoginAndRegistrationScript : MonoBehaviour
 {
@@ -37,7 +38,7 @@ public class LoginAndRegistrationScript : MonoBehaviour
     Button joinProfileButton;
 
     [SerializeField]
-    string personName;
+    public string personName;
     [SerializeField]
     string personPassword;
     [SerializeField]
@@ -115,8 +116,12 @@ public class LoginAndRegistrationScript : MonoBehaviour
             {
                 if (mailInputField.text != "")
                 {
-                    if (registeredPersonScript.registeredPersons.IsThisPersonRegistered(mailInputField.text))
+                    transform.GetComponent<PhotonView>().RPC("SendRequesToReturnIsPersonRegisteredWithoutPasswordFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, mailInputField.text);
+                    
+                    if (isThisRegisteredPersonWithoutPassword == true)
                     {
+                        isThisRegisteredPersonWithoutPassword = false;
+
                         SixthStateOfMailConf();
                     } 
                     else if(waitingCode == true)
@@ -349,13 +354,21 @@ public class LoginAndRegistrationScript : MonoBehaviour
         if (personInformationScript.personProfile.ReturnPersonMail() != "" && passwordInputField.text != null)
         {
             personInformationScript.personProfile.LoadPersonName("Person№" + Random.Range(0, 1000).ToString());
+            
             personInformationScript.personProfile.PasswordInput(passwordInputField.text);
+
             personInformationScript.personProfile.SetNewPersonAccessLevel(2);
+
             personInformationScript.SaveAllDataToFile();
 
-            registeredPersonScript.registeredPersons.AddNewRegisteredPerson(personInformationScript.personProfile);
+            transform.GetComponent<PhotonView>().RPC("RegisterFuncToServer", RpcTarget.MasterClient, 
+                personInformationScript.personProfile.ReturnPersonName(),
+                personInformationScript.personProfile.ReturnPersonMail(),
+                personInformationScript.personProfile.ReturnPersonPassword());
 
-            registeredPersonScript.registeredPersons.SaveAllDataToFile();
+            //registeredPersonScript.registeredPersons.AddNewRegisteredPerson(personInformationScript.personProfile);
+
+            //registeredPersonScript.registeredPersons.SaveAllDataToFile();
 
             loginAndRegistrationInputField.text = personInformationScript.personProfile.ReturnPersonName();
 
@@ -363,26 +376,35 @@ public class LoginAndRegistrationScript : MonoBehaviour
         }
     }
 
+    [PunRPC]
+    public void RegisterFuncToServer(string personName, string personMail, string personPassword)
+    {
+        registeredPersonScript.registeredPersons.AddNewRegisteredPerson(personName, personMail, personPassword);
+
+        registeredPersonScript.registeredPersons.SaveAllDataToFile();
+    }
+
     public void LeaveFromProfileFunc()
     {
         personInformationScript.personProfile.DeleteProfile();
 
-        //personInformationScript.personProfile.SetNewPersonAccessLevel(1);
-
         personInformationScript.SaveAllDataToFile();
 
         ReloadedInformationForInputField();
-
-        //SixthStateOfMailConf();
     }
 
     public void DeleteProfileFunc()
     {
-        registeredPersonScript.registeredPersons.DeleteRegisteredPerson(personInformationScript.personProfile);
+        transform.GetComponent<PhotonView>().RPC("DeleteProfileFuncToServer", RpcTarget.MasterClient,
+            personInformationScript.personProfile.ReturnPersonName(),
+            personInformationScript.personProfile.ReturnPersonMail(),
+            personInformationScript.personProfile.ReturnPersonPassword());
 
-        registeredPersonScript.registeredPersons.ReturnAllRegisteredPersonsToConsole();
+        //registeredPersonScript.registeredPersons.DeleteRegisteredPerson(personMail);
 
-        registeredPersonScript.registeredPersons.SaveAllDataToFile();
+        //registeredPersonScript.registeredPersons.ReturnAllRegisteredPersonsToConsole();
+
+        //registeredPersonScript.registeredPersons.SaveAllDataToFile();
 
         personInformationScript.personProfile.DeleteProfile();
 
@@ -391,19 +413,37 @@ public class LoginAndRegistrationScript : MonoBehaviour
         FirstStateOfMailConf();
     }
 
+    [PunRPC]
+    public void DeleteProfileFuncToServer(string personName, string personMail, string personPassword)
+    {
+        registeredPersonScript.registeredPersons.DeleteRegisteredPerson(personMail);
+
+        //registeredPersonScript.registeredPersons.ReturnAllRegisteredPersonsToConsole();
+
+        registeredPersonScript.registeredPersons.SaveAllDataToFile();
+    }
+
     public void JoinProfile()
     {
         if(personInformationScript.personProfile.ReturnPersonMail() != "" && passwordInputField.text != null)
         {
             personInformationScript.personProfile.LoadPersonMail(mailInputField.text);
 
-            Debug.Log(registeredPersonScript.registeredPersons.IsThisPersonRegistered(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text)));
+            //Debug.Log(registeredPersonScript.registeredPersons.IsThisPersonRegistered(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text)));
 
-            Debug.Log(personInformationScript.personProfile.PasswordEncryption(passwordInputField.text));
+            //Debug.Log(personInformationScript.personProfile.PasswordEncryption(passwordInputField.text));
 
-            if (registeredPersonScript.registeredPersons.IsThisPersonRegistered(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text)))
+            transform.GetComponent<PhotonView>().RPC("SendRequesToReturnIsPersonRegisteredFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text));
+
+            if (isThisRegisteredPerson == true)
             {
-                personInformationScript.personProfile.LoadPersonName(registeredPersonScript.registeredPersons.ReturnRegisteredPersonFromList(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text)).ReturnPersonName());
+                isThisRegisteredPerson = false;
+
+                //string personName = registeredPersonScript.registeredPersons.ReturnRegisteredPersonFromList(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text)).ReturnPersonName();
+
+                transform.GetComponent<PhotonView>().RPC("SendRequesToReturnPersonNameFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text));
+
+                personInformationScript.personProfile.LoadPersonName(personName);
 
                 loginAndRegistrationInputField.text = personInformationScript.personProfile.ReturnPersonName();
                 
@@ -416,5 +456,72 @@ public class LoginAndRegistrationScript : MonoBehaviour
                 FourthStateOfMailConf();
             }
         }
+    }
+
+    [PunRPC]
+    public void SendRequesToReturnPersonNameFromServer(string playerName, string personMail, string personPassword)
+    {
+        string personName = registeredPersonScript.registeredPersons.ReturnRegisteredPersonFromList(personMail, personPassword).ReturnPersonName();
+
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+            if(player.NickName == playerName)
+            {
+                transform.GetComponent<PhotonView>().RPC("ReturnPersonNameFromServer", player, personName);
+            }
+        }
+    }
+
+    [PunRPC]
+    public void ReturnPersonNameFromServer(string personNameFromServer)
+    {
+        personName = personNameFromServer;
+    }
+
+    public bool isThisRegisteredPerson = false;
+    public bool isThisRegisteredPersonWithoutPassword = false;
+
+    [PunRPC]
+    public void SendRequesToReturnIsPersonRegisteredFromServer(string playerName, string personMail, string personPassword)
+    {
+        //registeredPersonScript.registeredPersons.IsThisPersonRegistered(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text))
+
+        bool isThisPersonRegisteredOnServer = registeredPersonScript.registeredPersons.IsThisPersonRegistered(personMail, personPassword);
+
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+            if (player.NickName == playerName)
+            {
+                transform.GetComponent<PhotonView>().RPC("ReturnIsPersonRegisteredFromServer", player, isThisPersonRegisteredOnServer);
+            }
+        }
+    }
+
+    [PunRPC]
+    public void SendRequesToReturnIsPersonRegisteredWithoutPasswordFromServer(string playerName, string personMail)
+    {
+        //registeredPersonScript.registeredPersons.IsThisPersonRegistered(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text))
+
+        bool isThisPersonRegisteredOnServer = registeredPersonScript.registeredPersons.IsThisPersonRegistered(personMail);
+
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+            if (player.NickName == playerName)
+            {
+                transform.GetComponent<PhotonView>().RPC("ReturnIsPersonRegisteredWithoutPasswordFromServer", player, isThisPersonRegisteredOnServer);
+            }
+        }
+    }
+
+    [PunRPC]
+    public void ReturnIsPersonRegisteredFromServer(bool isThisPersonRegisteredOnServer)
+    {
+        isThisRegisteredPerson = isThisPersonRegisteredOnServer;
+    }
+
+    [PunRPC]
+    public void ReturnIsPersonRegisteredWithoutPasswordFromServer(bool isThisPersonRegisteredOnServer)
+    {
+        isThisRegisteredPersonWithoutPassword = isThisPersonRegisteredOnServer;
     }
 }
