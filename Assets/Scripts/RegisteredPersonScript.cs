@@ -100,8 +100,8 @@ public class RegisteredPersonScript : MonoBehaviour
         {
             foreach (PersonInformationScript.PersonInformation personInformation in allPersonsInformation)
             {
-                Debug.Log(personInformation.ReturnPersonMail() + " " + personInformation.ReturnPersonPassword());
-                Debug.Log(mail + " " + password);
+                //Debug.Log(personInformation.ReturnPersonMail() + " " + personInformation.ReturnPersonPassword());
+                //Debug.Log(mail + " " + password);
 
                 if (personInformation.ReturnPersonMail() == mail && personInformation.ReturnPersonPassword() == password)
                 {
@@ -155,58 +155,64 @@ public class RegisteredPersonScript : MonoBehaviour
 
         public void SaveAllDataToFile()
         {
-            JSONArray allRegisteredPerson = new JSONArray();
-
-            foreach (PersonInformationScript.PersonInformation personInformation in allPersonsInformation)
+            if (PhotonNetwork.IsMasterClient)
             {
-                JSONObject personDATA = new JSONObject();
+                JSONArray allRegisteredPerson = new JSONArray();
 
-                personDATA.Add("PersonName", personInformation.ReturnPersonName());
-                personDATA.Add("PersonMail", personInformation.ReturnPersonMail());
-                personDATA.Add("PersonPassword", personInformation.ReturnPersonPassword());
+                foreach (PersonInformationScript.PersonInformation personInformation in allPersonsInformation)
+                {
+                    JSONObject personDATA = new JSONObject();
 
-                allRegisteredPerson.Add(personDATA);
+                    personDATA.Add("PersonName", personInformation.ReturnPersonName());
+                    personDATA.Add("PersonMail", personInformation.ReturnPersonMail());
+                    personDATA.Add("PersonPassword", personInformation.ReturnPersonPassword());
+
+                    allRegisteredPerson.Add(personDATA);
+                }
+
+                if (File.Exists(fileForProfileSave))
+                {
+                    File.WriteAllText(fileForProfileSave, allRegisteredPerson.ToString());
+                }
+
+                Debug.Log("Registered Person");
             }
-
-            if (File.Exists(fileForProfileSave))
-            {
-                File.WriteAllText(fileForProfileSave, allRegisteredPerson.ToString());
-            }
-
-            Debug.Log("Registered Person");
         }
 
         public void LoadAllDataFromFile()
         {
-            LoadFiles();
-
-            if ((JSONArray)JSON.Parse(File.ReadAllText(fileForProfileSave)) != null)
+            //if (PhotonNetwork.IsMasterClient)
             {
-                JSONArray personDATA = (JSONArray)JSON.Parse(File.ReadAllText(fileForProfileSave));
+                LoadFiles();
 
-                if (personDATA != null)
+                if ((JSONArray)JSON.Parse(File.ReadAllText(fileForProfileSave)) != null)
                 {
-                    Debug.Log(personDATA.Count);
+                    JSONArray personDATA = (JSONArray)JSON.Parse(File.ReadAllText(fileForProfileSave));
 
-                    int i = 0;
-
-                    while (i < personDATA.Count)
+                    if (personDATA != null)
                     {
-                        PersonInformationScript.PersonInformation personInformation = new PersonInformationScript.PersonInformation();
+                        Debug.Log(personDATA.Count);
 
-                        string personName =  personDATA.AsArray[i]["PersonName"];
-                        string personMail =  personDATA.AsArray[i]["PersonMail"];
-                        string personPassword =  personDATA.AsArray[i]["PersonPassword"];
+                        int i = 0;
 
-                        //Debug.Log(personName + " " + personMail + " " + personPassword);
+                        while (i < personDATA.Count)
+                        {
+                            PersonInformationScript.PersonInformation personInformation = new PersonInformationScript.PersonInformation();
 
-                        personInformation.LoadPersonName(personName);
-                        personInformation.LoadPersonMail(personMail);
-                        personInformation.LoadPersonPassword(personPassword);
+                            string personName = personDATA.AsArray[i]["PersonName"];
+                            string personMail = personDATA.AsArray[i]["PersonMail"];
+                            string personPassword = personDATA.AsArray[i]["PersonPassword"];
 
-                        allPersonsInformation.Add(personInformation);
+                            //Debug.Log(personName + " " + personMail + " " + personPassword);
 
-                        i++;
+                            personInformation.LoadPersonName(personName);
+                            personInformation.LoadPersonMail(personMail);
+                            personInformation.LoadPersonPassword(personPassword);
+
+                            allPersonsInformation.Add(personInformation);
+
+                            i++;
+                        }
                     }
                 }
             }
