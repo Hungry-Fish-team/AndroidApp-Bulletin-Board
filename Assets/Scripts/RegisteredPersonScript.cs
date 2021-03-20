@@ -123,6 +123,17 @@ public class RegisteredPersonScript : MonoBehaviour
             }
         }
 
+        public void ChangePersonName(string mail, string newName)
+        {
+            foreach (PersonInformationScript.PersonInformation personInformation in allPersonsInformation)
+            {
+                if (personInformation.ReturnPersonMail() == mail)
+                {
+                    personInformation.LoadPersonName(newName);
+                }
+            }
+        }
+
         public void ReturnAllRegisteredPersonsToConsole()
         {
             foreach (PersonInformationScript.PersonInformation personInformation in allPersonsInformation)
@@ -191,7 +202,7 @@ public class RegisteredPersonScript : MonoBehaviour
 
                     if (personDATA != null)
                     {
-                        Debug.Log(personDATA.Count);
+                        //Debug.Log(personDATA.Count);
 
                         int i = 0;
 

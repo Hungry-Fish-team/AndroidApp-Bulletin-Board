@@ -15,6 +15,7 @@ public class LoginAndRegistrationScript : MonoBehaviour
     GameManager gameManager;
     PersonInformationScript personInformationScript;
     RegisteredPersonScript registeredPersonScript;
+    LoginAndRegistrationAddonsScript loginAndRegistrationAddonsScript;
 
     PhotonView photonView;
 
@@ -39,6 +40,10 @@ public class LoginAndRegistrationScript : MonoBehaviour
     [SerializeField]
     Button joinProfileButton;
     [SerializeField]
+    Button checkCodeButton;
+    [SerializeField]
+    Button returnToLoginButton;
+    [SerializeField]
     Text outputText;
 
     [SerializeField]
@@ -52,16 +57,12 @@ public class LoginAndRegistrationScript : MonoBehaviour
 
     private void OnEnable()
     {
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        personInformationScript = GameObject.Find("GameManager").GetComponent<PersonInformationScript>();
-        registeredPersonScript = GameObject.Find("GameManager").GetComponent<RegisteredPersonScript>();
-        photonView = GetComponent<PhotonView>();
-
-        photonView.ControllerActorNr = GameObject.Find("GameManager").GetComponent<PhotonView>().ControllerActorNr;
+        InitializationAllObjects();
 
         personName = personInformationScript.personProfile.ReturnPersonName();
-        loginAndRegistrationInputField.text = personName; 
-        mailInputField.text = personInformationScript.personProfile.ReturnPersonMail();
+        loginAndRegistrationInputField.text = personName;
+        personMail = personInformationScript.personProfile.ReturnPersonMail();
+        mailInputField.text = personMail;
 
         ReloadedInformationForInputField();
     }
@@ -82,9 +83,11 @@ public class LoginAndRegistrationScript : MonoBehaviour
                 mailInputField.text = personInformationScript.personProfile.ReturnPersonMail();
                 passwordInputField.text = "";
 
-                if(registeredPersonScript.registeredPersons.IsThisPersonRegistered(mailInputField.text)){
+                photonView.RPC("SendRequesToReturnIsPersonRegisteredWithoutPasswordFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, mailInputField.text);
 
-                    ThirdStateOfMailConf();
+                if (isThisRegisteredPersonWithoutPassword == true)
+                {
+                    SixthStateOfMailConf();
                 }
                 else
                 {
@@ -100,93 +103,69 @@ public class LoginAndRegistrationScript : MonoBehaviour
 
     void InitializationAllObjects()
     {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        personInformationScript = GameObject.Find("GameManager").GetComponent<PersonInformationScript>();
+        registeredPersonScript = GameObject.Find("GameManager").GetComponent<RegisteredPersonScript>();
+        loginAndRegistrationAddonsScript = GameObject.Find("GameManager").GetComponent<LoginAndRegistrationAddonsScript>();
+        photonView = GetComponent<PhotonView>();
+
+        photonView.ControllerActorNr = GameObject.Find("GameManager").GetComponent<PhotonView>().ControllerActorNr;
     }
 
-    void Start()
-    {
-        InitializationAllObjects();
-    }
+    private string lastMailText = null;
 
-    private void Update()
+    private bool ChangingMailInputText()
     {
-        ReadInputField();
-    }
-
-    private void ReadInputField()
-    {
-        if (loginAndRegistrationInputField.text != null || personName != null)
+        if (mailInputField.text != lastMailText)
         {
-            personName = loginAndRegistrationInputField.text;
-
-            if (personInformationScript.personProfile.ReturnPersonAccessLevel() < 2)
-            {
-                if (mailInputField.text != "")
-                {
-                    photonView.RPC("SendRequesToReturnIsPersonRegisteredWithoutPasswordFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, mailInputField.text);
-                    
-                    if (isThisRegisteredPersonWithoutPassword == true)
-                    {
-                        isThisRegisteredPersonWithoutPassword = false;
-
-                        SixthStateOfMailConf();
-                    } 
-                    else if(waitingCode == true)
-                    {
-                        WaitingTrueCode(personMail, newCode);
-                    }
-                }
-                else
-                {
-                    FirstStateOfMailConf();
-                }
-            }
-            else
-            {
-                FifthStateOfMailConf();
-            }
-
-            saveButton.interactable = true;
+            lastMailText = mailInputField.text;
+            return true;
         }
         else
         {
-            personName = null;
-            personPassword = null;
-
-            saveButton.interactable = false;
-            Debug.Log("Login is null");
+            return false;
         }
     }
 
     public void SaveLogin()
     {
-        //if (!PhotonNetwork.NickName.Contains(namePerson))
+        if (loginAndRegistrationInputField.text != null || personName != null)
         {
+            personName = loginAndRegistrationInputField.text;
+
             PhotonNetwork.NickName = personName;
 
-            registeredPersonScript.registeredPersons.ChangePersonName(personInformationScript.personProfile, personName);
+            Debug.Log(personMail);
 
-            registeredPersonScript.registeredPersons.SaveAllDataToFile();
-
+            if (personMail != null)
+            {
+                photonView.RPC("ChangePersonNameOnServer", RpcTarget.MasterClient, personMail, personName);
+            }
             personInformationScript.personProfile.LoadPersonName(personName);
 
             personInformationScript.SaveAllDataToFile();
 
             gameManager.OpenMenuObject();
-
         }
-        //else
-        //{
-        //    Debug.Log(PhotonNetwork.NickName + " " + namePerson);
-        //    StartCoroutine(gameManager.ErrorOrInfoFunc("Your name is already in use"));
-        //}
+        else
+        {
+            personName = null;
+            Debug.Log("Login is null");
+        }
+    }
+
+    [PunRPC]
+    private void ChangePersonNameOnServer(string personMail, string personName)
+    {
+        registeredPersonScript.registeredPersons.ChangePersonName(personMail, personName);
+
+        registeredPersonScript.registeredPersons.SaveAllDataToFile();
     }
 
     [SerializeField]
     private string appsMail;
     [SerializeField]
     private string appsMailPassword;
-
-    bool waitingCode = false;
 
     private IEnumerator OutputInfo(string text)
     {
@@ -212,6 +191,8 @@ public class LoginAndRegistrationScript : MonoBehaviour
         leaveFormProfileButton.gameObject.SetActive(false);
         deleteProfileButton.gameObject.SetActive(false);
         joinProfileButton.gameObject.SetActive(false);
+        checkCodeButton.gameObject.SetActive(false);
+        returnToLoginButton.gameObject.SetActive(true);
     }
 
     private void SecondStateOfMailConf()
@@ -227,6 +208,8 @@ public class LoginAndRegistrationScript : MonoBehaviour
         leaveFormProfileButton.gameObject.SetActive(false);
         deleteProfileButton.gameObject.SetActive(false);
         joinProfileButton.gameObject.SetActive(false);
+        checkCodeButton.gameObject.SetActive(true);
+        returnToLoginButton.gameObject.SetActive(false);
     }
 
     private void ThirdStateOfMailConf()
@@ -242,6 +225,8 @@ public class LoginAndRegistrationScript : MonoBehaviour
         leaveFormProfileButton.gameObject.SetActive(false);
         deleteProfileButton.gameObject.SetActive(false);
         joinProfileButton.gameObject.SetActive(false);
+        checkCodeButton.gameObject.SetActive(false);
+        returnToLoginButton.gameObject.SetActive(false);
     }
 
     private void FourthStateOfMailConf()
@@ -255,6 +240,8 @@ public class LoginAndRegistrationScript : MonoBehaviour
         leaveFormProfileButton.gameObject.SetActive(false);
         deleteProfileButton.gameObject.SetActive(false);
         joinProfileButton.gameObject.SetActive(false);
+        checkCodeButton.gameObject.SetActive(false);
+        returnToLoginButton.gameObject.SetActive(false);
     }
 
     private void FifthStateOfMailConf()
@@ -268,6 +255,8 @@ public class LoginAndRegistrationScript : MonoBehaviour
         leaveFormProfileButton.gameObject.SetActive(true);
         deleteProfileButton.gameObject.SetActive(true);
         joinProfileButton.gameObject.SetActive(false);
+        checkCodeButton.gameObject.SetActive(false);
+        returnToLoginButton.gameObject.SetActive(false);
     }
 
     private void SixthStateOfMailConf()
@@ -281,6 +270,13 @@ public class LoginAndRegistrationScript : MonoBehaviour
         leaveFormProfileButton.gameObject.SetActive(false);
         deleteProfileButton.gameObject.SetActive(false);
         joinProfileButton.gameObject.SetActive(true);
+        checkCodeButton.gameObject.SetActive(false);
+        returnToLoginButton.gameObject.SetActive(false);
+    }
+
+    public void ReturnToInputMail()
+    {
+        SixthStateOfMailConf();
     }
 
     private string FindTypeOfProfileMail(string mail)
@@ -322,37 +318,47 @@ public class LoginAndRegistrationScript : MonoBehaviour
         return message;
     }
 
-    private void MailConfirmationFunc()
+    private IEnumerator MailConfirmationFunc()
     {
-        personMail = mailInputField.text;
+        photonView.RPC("SendRequesToReturnIsPersonRegisteredWithoutPasswordFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, mailInputField.text);
 
-        if (personMail != "")
+        yield return new WaitForSeconds(1.5f);
+
+        if (isThisRegisteredPersonWithoutPassword == false)
         {
-            newCode = GenerateNewCode();
+            personMail = mailInputField.text;
 
-            SecondStateOfMailConf();
+            if (personMail != "")
+            {
+                newCode = GenerateNewCode();
 
-            SendMessageToProfileMail(personMail, newCode.ToString());
+                SecondStateOfMailConf();
 
-            mailCodeInputField.text = "";
+                SendMessageToProfileMail(personMail, newCode.ToString());
 
-            waitingCode = true;
+                mailCodeInputField.text = "";
+            }
+        }
+        else
+        {
+            SixthStateOfMailConf();
+
+            StartCoroutine(OutputInfo("Person registered"));
         }
     }
 
-    private void WaitingTrueCode(string personMail, int codeToConfirm)
+    public void WaitingTrueCode()
     {
         Debug.Log("Waiting Code");
-        if (mailCodeInputField.text != codeToConfirm.ToString())
-        {
-            mailCodeInputField.transform.GetChild(1).GetComponent<Text>().color = Color.red;
-        }
-        if (mailCodeInputField.text == codeToConfirm.ToString())
+        if (mailCodeInputField.text == newCode.ToString())
         {
             personInformationScript.personProfile.LoadPersonMail(personMail);
 
             ThirdStateOfMailConf();
-            waitingCode = false;
+        }
+        else
+        {
+            StartCoroutine(OutputInfo("Bad code"));
         }
     }
 
@@ -363,33 +369,49 @@ public class LoginAndRegistrationScript : MonoBehaviour
 
     public void SendNewCode()
     {
-        MailConfirmationFunc();
+        StartCoroutine(MailConfirmationFunc());
     }
 
     public void RegisterFunc()
     {
+        StartCoroutine("RegisterFuncIenumerator");
+    }
+
+    private IEnumerator RegisterFuncIenumerator()
+    {
         if (personInformationScript.personProfile.ReturnPersonMail() != "" && passwordInputField.text != null)
         {
-            personInformationScript.personProfile.LoadPersonName("Person№" + Random.Range(0, 1000).ToString());
-            
-            personInformationScript.personProfile.PasswordInput(passwordInputField.text);
+            photonView.RPC("SendRequesToReturnIsPersonRegisteredWithoutPasswordFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, mailInputField.text);
 
-            personInformationScript.personProfile.SetNewPersonAccessLevel(2);
+            yield return new WaitForSeconds(1f);
 
-            personInformationScript.SaveAllDataToFile();
+            if (isThisRegisteredPersonWithoutPassword == false)
+            {
+                //isThisRegisteredPersonWithoutPassword = false;
 
-            photonView.RPC("RegisterFuncToServer", RpcTarget.MasterClient, 
-                personInformationScript.personProfile.ReturnPersonName(),
-                personInformationScript.personProfile.ReturnPersonMail(),
-                personInformationScript.personProfile.ReturnPersonPassword());
+                personInformationScript.personProfile.LoadPersonName("Person№" + Random.Range(0, 1000).ToString());
 
-            //registeredPersonScript.registeredPersons.AddNewRegisteredPerson(personInformationScript.personProfile);
+                personInformationScript.personProfile.PasswordInput(passwordInputField.text);
 
-            //registeredPersonScript.registeredPersons.SaveAllDataToFile();
+                personInformationScript.personProfile.SetNewPersonAccessLevel(2);
 
-            loginAndRegistrationInputField.text = personInformationScript.personProfile.ReturnPersonName();
+                personInformationScript.SaveAllDataToFile();
 
-            FourthStateOfMailConf();
+                photonView.RPC("RegisterFuncToServer", RpcTarget.MasterClient,
+                    personInformationScript.personProfile.ReturnPersonName(),
+                    personInformationScript.personProfile.ReturnPersonMail(),
+                    personInformationScript.personProfile.ReturnPersonPassword());
+
+                //registeredPersonScript.registeredPersons.AddNewRegisteredPerson(personInformationScript.personProfile);
+
+                //registeredPersonScript.registeredPersons.SaveAllDataToFile();
+
+                loginAndRegistrationInputField.text = personInformationScript.personProfile.ReturnPersonName();
+
+                FourthStateOfMailConf();
+
+                StartCoroutine(OutputInfo("Account create"));
+            }
         }
     }
 
@@ -400,7 +422,7 @@ public class LoginAndRegistrationScript : MonoBehaviour
 
         registeredPersonScript.registeredPersons.AddNewRegisteredPerson(personName, personMail, personPassword);
 
-        registeredPersonScript.registeredPersons.SaveAllDataToFile();
+        //registeredPersonScript.registeredPersons.SaveAllDataToFile();
     }
 
     public void LeaveFromProfileFunc()
@@ -430,6 +452,8 @@ public class LoginAndRegistrationScript : MonoBehaviour
         personInformationScript.SaveAllDataToFile();
 
         FirstStateOfMailConf();
+
+        StartCoroutine(OutputInfo("Account deleted"));
     }
 
     [PunRPC]
@@ -441,12 +465,17 @@ public class LoginAndRegistrationScript : MonoBehaviour
 
         //registeredPersonScript.registeredPersons.ReturnAllRegisteredPersonsToConsole();
 
-        registeredPersonScript.registeredPersons.SaveAllDataToFile();
+        //registeredPersonScript.registeredPersons.SaveAllDataToFile();
     }
 
     public void JoinProfile()
     {
-        if(personInformationScript.personProfile.ReturnPersonMail() != "" && passwordInputField.text != null)
+        StartCoroutine("JoinProfileIEnumerator");
+    }
+
+    private IEnumerator JoinProfileIEnumerator()
+    {
+        if (personInformationScript.personProfile.ReturnPersonMail() != "" && passwordInputField.text != null)
         {
             personInformationScript.personProfile.LoadPersonMail(mailInputField.text);
 
@@ -454,31 +483,49 @@ public class LoginAndRegistrationScript : MonoBehaviour
 
             //Debug.Log(personInformationScript.personProfile.PasswordEncryption(passwordInputField.text));
 
-            photonView.RPC("SendRequesToReturnIsPersonRegisteredFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text));
+            photonView.RPC("SendRequesToReturnIsPersonRegisteredWithoutPasswordFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, mailInputField.text);
 
-            if (isThisRegisteredPerson == true)
+            yield return new WaitForSeconds(1f);
+
+            if (isThisRegisteredPersonWithoutPassword == true)
             {
-                isThisRegisteredPerson = false;
+                isThisRegisteredPersonWithoutPassword = false;
 
-                //string personName = registeredPersonScript.registeredPersons.ReturnRegisteredPersonFromList(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text)).ReturnPersonName();
+                photonView.RPC("SendRequesToReturnIsPersonRegisteredFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text));
 
-                photonView.RPC("SendRequesToReturnPersonNameFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text));
+                yield return new WaitForSeconds(1f);
 
-                personInformationScript.personProfile.LoadPersonName(personName);
+                if (isThisRegisteredPerson == true)
+                {
+                    isThisRegisteredPerson = false;
 
-                loginAndRegistrationInputField.text = personInformationScript.personProfile.ReturnPersonName();
-                
-                personInformationScript.personProfile.PasswordInput(passwordInputField.text);
+                    //string personName = registeredPersonScript.registeredPersons.ReturnRegisteredPersonFromList(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text)).ReturnPersonName();
 
-                personInformationScript.personProfile.SetNewPersonAccessLevel(2);
+                    photonView.RPC("SendRequesToReturnPersonNameFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text));
 
-                personInformationScript.SaveAllDataToFile();
+                    personInformationScript.personProfile.LoadPersonName(personName);
 
-                FourthStateOfMailConf();
+                    loginAndRegistrationInputField.text = personInformationScript.personProfile.ReturnPersonName();
+
+                    personInformationScript.personProfile.PasswordInput(passwordInputField.text);
+
+                    personInformationScript.personProfile.SetNewPersonAccessLevel(2);
+
+                    personInformationScript.SaveAllDataToFile();
+
+                    FourthStateOfMailConf();
+
+                    gameManager.OpenMenuObject();
+                }
+                else
+                {
+                    StartCoroutine(OutputInfo("Incorect password"));
+                }
             }
             else
             {
-                StartCoroutine(OutputInfo("Incorect password"));
+                StartCoroutine(OutputInfo("Person is not registered"));
+                FirstStateOfMailConf();
             }
         }
     }
@@ -486,13 +533,18 @@ public class LoginAndRegistrationScript : MonoBehaviour
     [PunRPC]
     public void SendRequesToReturnPersonNameFromServer(string playerName, string personMail, string personPassword)
     {
+        if (gameManager == null)
+        {
+            InitializationAllObjects();
+        }
+
         Debug.Log("Server SendRequesToReturnPersonNameFromServer");
 
         string personName = registeredPersonScript.registeredPersons.ReturnRegisteredPersonFromList(personMail, personPassword).ReturnPersonName();
 
         foreach (Player player in PhotonNetwork.PlayerList)
         {
-            if(player.NickName == playerName)
+            if (player.NickName == playerName)
             {
                 photonView.RPC("ReturnPersonNameFromServer", player, personName);
             }
@@ -505,12 +557,18 @@ public class LoginAndRegistrationScript : MonoBehaviour
         personName = personNameFromServer;
     }
 
+    public bool isWaitingResult = false;
     public bool isThisRegisteredPerson = false;
     public bool isThisRegisteredPersonWithoutPassword = false;
 
     [PunRPC]
     public void SendRequesToReturnIsPersonRegisteredFromServer(string playerName, string personMail, string personPassword)
     {
+        if (gameManager == null)
+        {
+            InitializationAllObjects();
+        }
+
         //registeredPersonScript.registeredPersons.IsThisPersonRegistered(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text))
 
         Debug.Log("Server SendRequesToReturnIsPersonRegisteredFromServer");
@@ -529,11 +587,18 @@ public class LoginAndRegistrationScript : MonoBehaviour
     [PunRPC]
     public void SendRequesToReturnIsPersonRegisteredWithoutPasswordFromServer(string playerName, string personMail)
     {
+        if (gameManager == null)
+        {
+            InitializationAllObjects();
+        }
+
         //registeredPersonScript.registeredPersons.IsThisPersonRegistered(personInformationScript.personProfile.ReturnPersonMail(), personInformationScript.personProfile.PasswordEncryption(passwordInputField.text))
 
         Debug.Log("Server SendRequesToReturnIsPersonRegisteredWithoutPasswordFromServer");
 
         bool isThisPersonRegisteredOnServer = registeredPersonScript.registeredPersons.IsThisPersonRegistered(personMail);
+
+        Debug.Log(personMail + " " + registeredPersonScript.registeredPersons.IsThisPersonRegistered(personMail));
 
         foreach (Player player in PhotonNetwork.PlayerList)
         {
@@ -554,5 +619,14 @@ public class LoginAndRegistrationScript : MonoBehaviour
     public void ReturnIsPersonRegisteredWithoutPasswordFromServer(bool isThisPersonRegisteredOnServer)
     {
         isThisRegisteredPersonWithoutPassword = isThisPersonRegisteredOnServer;
+    }
+
+    public IEnumerator WaitingResultFromServer(bool waitingBool)
+    {
+        while (true)
+        {
+            if (waitingBool) break;
+            yield return null;
+        }
     }
 }
