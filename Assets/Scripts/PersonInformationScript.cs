@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.IO;
 using UnityEngine;
 using System.Text;
+using Photon.Pun;
 
 public class PersonInformationScript : MonoBehaviour
 {
@@ -272,11 +273,18 @@ public class PersonInformationScript : MonoBehaviour
         }
     }
 
+    private void LoadPlayerNickName()
+    {
+        PhotonNetwork.NickName = personProfile.ReturnPersonName();
+    }
+
     private void InitializationAllObjects()
     {
         registeredPersonScript = GameObject.Find("GameManager").GetComponent<RegisteredPersonScript>();
 
         LoadAllDataFromFile();
+
+        LoadPlayerNickName();
     }
 
     private void OnEnable()

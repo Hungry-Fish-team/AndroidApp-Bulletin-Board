@@ -27,6 +27,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     Image BGLoad_image;
 
     [SerializeField]
+    Button closeServerButton;
+
+    [SerializeField]
     InputField adminMailInputField;
     [SerializeField]
     InputField adminPasswordInputField;
@@ -69,6 +72,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             yield return new WaitUntil(() => CheckInputField(adminMail, adminPassword) == true);
 
             CreateRoom();
+
+            yield return new WaitUntil(() => PhotonNetwork.InRoom);
+
+            PhotonNetwork.CurrentRoom.SetMasterClient(PhotonNetwork.PlayerList[0]);
         }
 
         private string PasswordEncryption(string passwordString)
@@ -99,6 +106,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
                 MaxPlayers = (byte)RoomSize,
             };
             PhotonNetwork.CreateRoom("MainRoom", roomOps, new TypedLobby("Default", LobbyType.Default));
+
+            PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
 
             Debug.Log("Room is create");
         }
@@ -192,12 +201,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         }
     }
 
-    public void Update()
-    {
-        Debug.Log(PhotonNetwork.InLobby + " in Lobby");
-        Debug.Log(PhotonNetwork.InRoom + " in Room");
-        Debug.Log(PhotonNetwork.CountOfRooms + " in Room");
-    }
+    //public void Update()
+    //{
+    //    Debug.Log(PhotonNetwork.InLobby + " in Lobby");
+    //    Debug.Log(PhotonNetwork.InRoom + " in Room");
+    //    Debug.Log(PhotonNetwork.CountOfRooms + " in Room");
+    //}
 
     public void StartServer()
     {
@@ -219,9 +228,13 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         PhotonNetwork.AutomaticallySyncScene = true;
         PhotonNetwork.NickName = "Person" + Random.Range(0, 100).ToString();
         PhotonNetwork.GameVersion = versionNum;
-        //PhotonNetwork.AppVersion = versionNum;
         PhotonNetwork.ConnectUsingSettings();
         PhotonNetwork.ConnectToRegion("ru");
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            closeServerButton.gameObject.SetActive(true);
+        }
     }
 
     private void Start()
@@ -238,34 +251,41 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public override void OnDisable()
     {
+        CloseSeverFunc();
+
         PhotonNetwork.RemoveCallbackTarget(this);
-        //if (PhotonNetwork.IsMasterClient)
-        //{
-        //    PhotonNetwork.CurrentRoom.IsOpen = false;
-        //    foreach(Player player in PhotonNetwork.PlayerList)
-        //    {
-        //        PhotonNetwork.CloseConnection(player);
-        //    }
-        //    transform.GetComponent<PhotonView>().RPC("CloseServer", RpcTarget.All);
-        //}
+    }
+
+    public void CloseSeverFunc()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log("ServClose");
+
+            transform.GetComponent<PhotonView>().RPC("CloseServer", RpcTarget.All);
+
+            PhotonNetwork.CurrentRoom.IsOpen = false;
+            PhotonNetwork.CurrentRoom.EmptyRoomTtl = 0;
+
+            foreach (Player player in PhotonNetwork.PlayerList)
+            {
+                PhotonNetwork.CloseConnection(player);
+            }
+        }
     }
 
     [PunRPC]
     void CloseServer()
     {
-        StartCoroutine(OpenAdminPanel());
-        //StartCoroutine("WaitingResult");
+        if (gameManager != null)
+        {
+            gameManager.GetComponent<GameManager>().OpenMenuObject();
+        }
+
+        AdminEnter.SetActive(true);
+        gameManager.SetActive(false);
+
+        adminMailInputField.text = "";
+        adminPasswordInputField.text = "";
     }
-
-    //public static object DeserializeSpriteIcon(byte[] data)
-    //{
-    //    var result = Sprite.Create(data.);
-    //    return result;
-    //}
-
-    //public static byte[] SerializeSpriteIcon(object customType)
-    //{
-    //    var icon = (Sprite)customType;
-    //    return icon.texture.GetRawTextureData();
-    //}
 }
