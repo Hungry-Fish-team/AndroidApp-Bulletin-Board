@@ -130,6 +130,7 @@ public class RegisteredPersonScript : MonoBehaviour
                 if (personInformation.ReturnPersonMail() == mail)
                 {
                     personInformation.LoadPersonName(newName);
+                    break;
                 }
             }
         }
@@ -235,11 +236,6 @@ public class RegisteredPersonScript : MonoBehaviour
     private void Start()
     {
         InitializationAllObjects();
-    }
-
-    private void Update()
-    {
-        //registeredPersons.ReturnAllRegisteredPersonsToConsole();
     }
 
     private void InitializationAllObjects()

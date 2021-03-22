@@ -2,6 +2,8 @@
 using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,13 +11,111 @@ using UnityEngine.UI;
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
     [SerializeField]
-    bool isNetworkAllow;
+    GameObject gameManager;
+    [SerializeField]
+    GameObject AdminEnter;
+
+    [SerializeField]
+    public bool isNetworkAllow;
+    [SerializeField]
+    public bool isConnectedToMaster;
+    [SerializeField]
+    public bool isServerAndRoomWork = false;
     [SerializeField]
     string versionNum;
     [SerializeField]
     Image BGLoad_image;
 
-    public IEnumerator checkInternetConnection()
+    [SerializeField]
+    InputField adminMailInputField;
+    [SerializeField]
+    InputField adminPasswordInputField;
+    [SerializeField]
+    Button startServerButton;
+
+    private class AdministratorClass : MonoBehaviourPunCallbacks
+    {
+        private string adminMail = "1307b01a22409f072759939ee98a65c8d7b64f858d047d71e55e6f1f93108daf";
+        private string adminPassword = "0fdce5bdbdc7ed5c8c7bb3a14a9c77aa7e062bc9798ee5d30ae216223cfc1e58";
+
+        private string inputAdminMail;
+        private string inputAdminPassword;
+
+        private void ReadInputFields(string adminMail, string adminPassword)
+        {
+            if (adminMail != "" && adminPassword != "")
+            {
+                inputAdminMail = adminMail;
+                inputAdminPassword = adminPassword;
+            }
+        }
+
+        public bool CheckInputField(string adminMail, string adminPassword)
+        {
+            ReadInputFields(adminMail, adminPassword);
+
+            if (PasswordEncryption(inputAdminMail) == this.adminMail)
+            {
+                if (PasswordEncryption(inputAdminPassword) == this.adminPassword)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public IEnumerator CheckingInutField(string adminMail, string adminPassword)
+        {
+            yield return new WaitUntil(() => CheckInputField(adminMail, adminPassword) == true);
+
+            CreateRoom();
+        }
+
+        private string PasswordEncryption(string passwordString)
+        {
+            UTF8Encoding ue = new UTF8Encoding();
+            byte[] bytes = ue.GetBytes(passwordString);
+
+            SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider();
+            byte[] hashBytes = sha256.ComputeHash(bytes);
+
+            string hashString = "";
+
+            for (int i = 0; i < hashBytes.Length; i++)
+            {
+                hashString += System.Convert.ToString(hashBytes[i], 16).PadLeft(2, '0');
+            }
+
+            return hashString.PadLeft(32, '0');
+        }
+
+        private void CreateRoom()
+        {
+            int RoomSize = 1000;
+            RoomOptions roomOps = new RoomOptions()
+            {
+                IsVisible = true,
+                IsOpen = true,
+                MaxPlayers = (byte)RoomSize,
+            };
+            PhotonNetwork.CreateRoom("MainRoom", roomOps, new TypedLobby("Default", LobbyType.Default));
+
+            Debug.Log("Room is create");
+        }
+
+        public override void OnJoinRandomFailed(short returnCode, string message)
+        {
+            base.OnJoinRandomFailed(returnCode, message);
+            CreateRoom();
+        }
+
+        public override void OnCreateRoomFailed(short returnCode, string message)
+        {
+            CreateRoom();
+        }
+    }
+
+    public IEnumerator CheckInternetConnection()
     {
         WWW www = new WWW("http://google.com");
         yield return www;
@@ -33,33 +133,91 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        if (isNetworkAllow == true) {
+        if (isNetworkAllow == true)
+        {
             Debug.Log("Connect to Master " + PhotonNetwork.CloudRegion);
 
-            BGLoad_image.gameObject.SetActive(false);
+            isConnectedToMaster = true;
 
-            if (GetComponent<PersonInformationScript>().personProfile.ReturnPersonName() != null) {
-                PhotonNetwork.NickName = GetComponent<PersonInformationScript>().personProfile.ReturnPersonName();
+            StartCoroutine(OpenAdminPanel());
+        }
+    }
+
+    IEnumerator OpenAdminPanel()
+    {
+        PhotonNetwork.JoinLobby(TypedLobby.Default);
+
+        yield return new WaitUntil(() => PhotonNetwork.InLobby);
+
+        if (PhotonNetwork.InLobby && PhotonNetwork.CountOfRooms != 1)
+        {
+            AdminEnter.SetActive(true);
+
+            isServerAndRoomWork = true;
+            gameManager.SetActive(false);
+        }
+        BGLoad_image.gameObject.SetActive(false);
+    }
+
+    IEnumerator WaitingResult()
+    {
+        yield return new WaitUntil(() => isConnectedToMaster == true);
+
+        if (isConnectedToMaster == true)
+        {
+            yield return new WaitUntil(() => PhotonNetwork.IsConnectedAndReady);
+
+            if (!PhotonNetwork.InRoom)
+            {
+                yield return new WaitUntil(() => PhotonNetwork.InLobby);
+                if (PhotonNetwork.InLobby)
+                {
+                    yield return new WaitUntil(() => PhotonNetwork.CountOfRooms > 0);
+                    if (PhotonNetwork.CountOfRooms > 0)
+                    {
+                        PhotonNetwork.JoinRoom("MainRoom");
+
+                        isServerAndRoomWork = true;
+                        gameManager.SetActive(true);
+                        AdminEnter.SetActive(false);
+                    }
+                }
             }
             else
             {
-                string newPersonName = "Person№" + Random.Range(0, 1000).ToString();
-                GetComponent<PersonInformationScript>().personProfile.LoadPersonName(newPersonName);
-                PhotonNetwork.NickName = newPersonName;
+                AdminEnter.SetActive(false);
+                isServerAndRoomWork = true;
+                gameManager.SetActive(true);
             }
-
-            PhotonNetwork.JoinRandomRoom();
         }
+    }
+
+    public void Update()
+    {
+        Debug.Log(PhotonNetwork.InLobby + " in Lobby");
+        Debug.Log(PhotonNetwork.InRoom + " in Room");
+        Debug.Log(PhotonNetwork.CountOfRooms + " in Room");
+    }
+
+    public void StartServer()
+    {
+        AdministratorClass administrator = new AdministratorClass();
+
+        StopCoroutine("CheckingInutField");
+        StopCoroutine("WaitingResult");
+
+        StartCoroutine(administrator.CheckingInutField(adminMailInputField.text, adminPasswordInputField.text));
+        StartCoroutine("WaitingResult");
     }
 
     private void InitializationAllObjects()
     {
-        StartCoroutine(checkInternetConnection());
+        StartCoroutine(CheckInternetConnection());
 
         versionNum = Application.version;
 
         PhotonNetwork.AutomaticallySyncScene = true;
-        //PhotonNetwork.NickName = nickName;
+        PhotonNetwork.NickName = "Person" + Random.Range(0, 100).ToString();
         PhotonNetwork.GameVersion = versionNum;
         //PhotonNetwork.AppVersion = versionNum;
         PhotonNetwork.ConnectUsingSettings();
@@ -70,10 +228,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         InitializationAllObjects();
 
-        if (PhotonNetwork.IsConnectedAndReady)
-        {
-            Debug.Log("Ready");
-        }
+        StartCoroutine("WaitingResult");
     }
 
     public override void OnEnable()
@@ -84,32 +239,22 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public override void OnDisable()
     {
         PhotonNetwork.RemoveCallbackTarget(this);
+        //if (PhotonNetwork.IsMasterClient)
+        //{
+        //    PhotonNetwork.CurrentRoom.IsOpen = false;
+        //    foreach(Player player in PhotonNetwork.PlayerList)
+        //    {
+        //        PhotonNetwork.CloseConnection(player);
+        //    }
+        //    transform.GetComponent<PhotonView>().RPC("CloseServer", RpcTarget.All);
+        //}
     }
 
-    public override void OnJoinRandomFailed(short returnCode, string message)
+    [PunRPC]
+    void CloseServer()
     {
-        base.OnJoinRandomFailed(returnCode, message);
-        CreateRoom();
-    }
-
-    public void CreateRoom()
-    {
-        int rand = Random.Range(0, 1000);
-        int RoomSize = 1000;
-        RoomOptions roomOps = new RoomOptions()
-        {
-            IsVisible = true,
-            IsOpen = true,
-            MaxPlayers = (byte)RoomSize,
-        };
-        PhotonNetwork.CreateRoom("Room" + rand.ToString(), roomOps);
-
-        Debug.Log("Room is create");
-    }
-
-    public override void OnCreateRoomFailed(short returnCode, string message)
-    {
-        CreateRoom();
+        StartCoroutine(OpenAdminPanel());
+        //StartCoroutine("WaitingResult");
     }
 
     //public static object DeserializeSpriteIcon(byte[] data)

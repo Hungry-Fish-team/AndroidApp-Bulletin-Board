@@ -264,13 +264,6 @@ public class PersonInformationScript : MonoBehaviour
                 personProfile.SetNewPersonAccessLevel(1);
                 personProfile.LoadPersonMail(personDATA["PersonMail"]);
                 personProfile.LoadPersonEncryptedPassword(personDATA["PersonPassword"]);
-                if (personProfile.ReturnPersonMail() != null && personProfile.ReturnPersonEncryptedPassword() != null)
-                {
-                    if (registeredPersonScript.registeredPersons.IsThisPersonRegistered(personProfile))
-                    {
-                        personProfile.SetNewPersonAccessLevel(2);
-                    }
-                }
             }
             else
             {
@@ -283,12 +276,10 @@ public class PersonInformationScript : MonoBehaviour
     {
         registeredPersonScript = GameObject.Find("GameManager").GetComponent<RegisteredPersonScript>();
 
-        //StartCoroutine("WaitingLoadedBackUps");
-
         LoadAllDataFromFile();
     }
 
-    private void Start()
+    private void OnEnable()
     {
         InitializationAllObjects();
     }
