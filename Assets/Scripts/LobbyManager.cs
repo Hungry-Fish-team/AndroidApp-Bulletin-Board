@@ -207,9 +207,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void Update()
     {
-        Debug.Log(PhotonNetwork.InLobby + " in Lobby");
-        Debug.Log(PhotonNetwork.InRoom + " in Room");
-        Debug.Log(PhotonNetwork.CountOfRooms + " in Room");
+        //Debug.Log(PhotonNetwork.InLobby + " in Lobby");
+        //Debug.Log(PhotonNetwork.InRoom + " in Room");
+        //Debug.Log(PhotonNetwork.CountOfRooms + " in Room");
 
         //if (PhotonNetwork.CurrentRoom != null)
         //{
