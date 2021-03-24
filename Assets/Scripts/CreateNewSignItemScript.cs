@@ -35,6 +35,9 @@ public class CreateNewSignItemScript : MonoBehaviour
     [SerializeField]
     string infoEvent;
 
+    [SerializeField]
+    Sprite nonImage;
+
     void InitializationAllObjects()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -55,12 +58,15 @@ public class CreateNewSignItemScript : MonoBehaviour
 
     void CheckInputField()
     {
-        if(nameEventInputField.text != "" && placeNameInputField.text != "" && dateTimeInputField.text != "" && infoEventInputField.text != "" && spriteImage.sprite != null)
+        if(nameEventInputField.text != "" && placeNameInputField.text != "" && dateTimeInputField.text != "" && infoEventInputField.text != "")
         {
             nameEvent = nameEventInputField.text;
             placeName = placeNameInputField.text;
             dateTime = dateTimeInputField.text;
-            image = spriteImage.sprite;
+            if (spriteImage.sprite != null)
+            {
+                image = spriteImage.sprite;
+            }
             infoEvent = infoEventInputField.text;
 
             saveButton.interactable = true;
@@ -74,7 +80,10 @@ public class CreateNewSignItemScript : MonoBehaviour
 
     public void SaveInfoAboutEvent()
     {
-        if (personInformationScript.personProfile.ReturnPersonName() != "") {
+        if (personInformationScript.personProfile.ReturnPersonName() != "") 
+        {
+            saveButton.gameObject.SetActive(false);
+
             WriteInfo();
 
             //gameManager.listSigns.Add(signItemScriptableObject);
@@ -84,11 +93,12 @@ public class CreateNewSignItemScript : MonoBehaviour
             gameManager.OpenMenuObject();
 
             gameManager.ReloadObjestForDashboard();
+
+            saveButton.gameObject.SetActive(true);
         }
         else
         {
-            string text = "Your name is null";
-            StartCoroutine(gameManager.ErrorOrInfoFunc(text));
+            StartCoroutine(gameManager.ErrorOrInfoFunc("Your name is null"));
         }
     }
 
@@ -101,7 +111,14 @@ public class CreateNewSignItemScript : MonoBehaviour
         signItemScriptableObject.nameEventText = nameEvent;
         signItemScriptableObject.placeNameText = placeName;
         signItemScriptableObject.dateTimeText = dateTime;
-        signItemScriptableObject.icon = image;
+        if (image != null)
+        {
+            signItemScriptableObject.icon = image;
+        }
+        else
+        {
+            signItemScriptableObject.icon = nonImage;
+        }
         signItemScriptableObject.infoEventText = infoEvent;
         signItemScriptableObject.ownerEvent = personInformationScript.personProfile.ReturnPersonName();
 

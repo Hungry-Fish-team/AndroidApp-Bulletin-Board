@@ -401,10 +401,10 @@ public class LoginAndRegistrationScript : MonoBehaviourPunCallbacks
 
     public void RegisterFunc()
     {
-        StartCoroutine("RegisterFuncIenumerator");
+        StartCoroutine("RegisterFuncIEnumerator");
     }
 
-    private IEnumerator RegisterFuncIenumerator()
+    private IEnumerator RegisterFuncIEnumerator()
     {
         if (personInformationScript.personProfile.ReturnPersonMail() != "" && passwordInputField.text != null)
         {
@@ -449,7 +449,7 @@ public class LoginAndRegistrationScript : MonoBehaviourPunCallbacks
 
         registeredPersonScript.registeredPersons.AddNewRegisteredPerson(personName, personMail, personPassword);
 
-        //registeredPersonScript.registeredPersons.SaveAllDataToFile();
+        registeredPersonScript.registeredPersons.SaveAllDataToFile();
     }
 
     public void LeaveFromProfileFunc()
@@ -491,7 +491,7 @@ public class LoginAndRegistrationScript : MonoBehaviourPunCallbacks
 
         //registeredPersonScript.registeredPersons.ReturnAllRegisteredPersonsToConsole();
 
-        //registeredPersonScript.registeredPersons.SaveAllDataToFile();
+        registeredPersonScript.registeredPersons.SaveAllDataToFile();
     }
 
     public void JoinProfile()

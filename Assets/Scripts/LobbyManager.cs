@@ -27,7 +27,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     Image BGLoad_image;
 
     [SerializeField]
-    Button closeServerButton;
+    public Button closeServerButton;
 
     [SerializeField]
     InputField adminMailInputField;
@@ -35,11 +35,13 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     InputField adminPasswordInputField;
     [SerializeField]
     Button startServerButton;
+    [SerializeField]
+    Text countDownOfReJoinText;
 
     private class AdministratorClass : MonoBehaviourPunCallbacks
     {
-        private string adminMail = "1307b01a22409f072759939ee98a65c8d7b64f858d047d71e55e6f1f93108daf";
-        private string adminPassword = "0fdce5bdbdc7ed5c8c7bb3a14a9c77aa7e062bc9798ee5d30ae216223cfc1e58";
+        private readonly string adminMail = "1307b01a22409f072759939ee98a65c8d7b64f858d047d71e55e6f1f93108daf";
+        private readonly string adminPassword = "0fdce5bdbdc7ed5c8c7bb3a14a9c77aa7e062bc9798ee5d30ae216223cfc1e58";
 
         private string inputAdminMail;
         private string inputAdminPassword;
@@ -67,7 +69,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             return false;
         }
 
-        public IEnumerator CheckingInutField(string adminMail, string adminPassword)
+        public IEnumerator CheckingInutField(string adminMail, string adminPassword, Button closeServerButton)
         {
             yield return new WaitUntil(() => CheckInputField(adminMail, adminPassword) == true);
 
@@ -76,6 +78,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             yield return new WaitUntil(() => PhotonNetwork.InRoom);
 
             PhotonNetwork.CurrentRoom.SetMasterClient(PhotonNetwork.PlayerList[0]);
+
+            closeServerButton.gameObject.SetActive(true);
         }
 
         private string PasswordEncryption(string passwordString)
@@ -147,9 +151,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             Debug.Log("Connect to Master " + PhotonNetwork.CloudRegion);
 
             isConnectedToMaster = true;
-
-            StartCoroutine(OpenAdminPanel());
         }
+
+        StartCoroutine(OpenAdminPanel());
     }
 
     IEnumerator OpenAdminPanel()
@@ -162,7 +166,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             AdminEnter.SetActive(true);
 
-            isServerAndRoomWork = true;
+            //isServerAndRoomWork = true;
             gameManager.SetActive(false);
         }
         BGLoad_image.gameObject.SetActive(false);
@@ -194,18 +198,65 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             }
             else
             {
-                AdminEnter.SetActive(false);
                 isServerAndRoomWork = true;
                 gameManager.SetActive(true);
+                AdminEnter.SetActive(false);
             }
         }
     }
 
-    //public void Update()
+    public void Update()
+    {
+        Debug.Log(PhotonNetwork.InLobby + " in Lobby");
+        Debug.Log(PhotonNetwork.InRoom + " in Room");
+        Debug.Log(PhotonNetwork.CountOfRooms + " in Room");
+
+        //if (PhotonNetwork.CurrentRoom != null)
+        //{
+        //    Debug.Log(PhotonNetwork.MasterClient);
+        //    Debug.Log(PhotonNetwork.LocalPlayer);
+        //}
+
+        //Debug.Log(PhotonNetwork.MasterClient);
+
+        //foreach (Player player in PhotonNetwork.PlayerList)
+        //{
+        //    Debug.Log(player.NickName);
+        //}
+    }
+
+    private IEnumerator ReJoinToRoom()
+    {
+        StopCoroutine("ReJoinToRoom");
+
+        yield return new WaitForSeconds(10f);
+
+        if (PhotonNetwork.InRoom != true)
+        {
+
+            if (isServerAndRoomWork != true)
+            {
+                Debug.Log("ReJoin");
+
+                Debug.Log("ReJoinSecondState");
+                if (PhotonNetwork.CountOfRooms > 0)
+                {
+                    StartCoroutine("WaitingResult");
+                }
+
+                StartCoroutine(ReJoinToRoom());
+            }
+        }
+    }
+
+    //private IEnumerator Countdown(float duration)
     //{
-    //    Debug.Log(PhotonNetwork.InLobby + " in Lobby");
-    //    Debug.Log(PhotonNetwork.InRoom + " in Room");
-    //    Debug.Log(PhotonNetwork.CountOfRooms + " in Room");
+    //    countDownOfReJoinText.text = "try rejoin after: " + (int)duration;
+    //    while (duration > 0)
+    //    {
+    //        duration = -Time.deltaTime;
+    //        yield return null;
+    //    }
     //}
 
     public void StartServer()
@@ -215,7 +266,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         StopCoroutine("CheckingInutField");
         StopCoroutine("WaitingResult");
 
-        StartCoroutine(administrator.CheckingInutField(adminMailInputField.text, adminPasswordInputField.text));
+        StartCoroutine(administrator.CheckingInutField(adminMailInputField.text, adminPasswordInputField.text, closeServerButton));
         StartCoroutine("WaitingResult");
     }
 
@@ -230,11 +281,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         PhotonNetwork.GameVersion = versionNum;
         PhotonNetwork.ConnectUsingSettings();
         PhotonNetwork.ConnectToRegion("ru");
-
-        if (PhotonNetwork.IsMasterClient)
-        {
-            closeServerButton.gameObject.SetActive(true);
-        }
     }
 
     private void Start()
@@ -244,48 +290,67 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         StartCoroutine("WaitingResult");
     }
 
+    private void OnApplicationPause()
+    {
+        CloseSeverFunc();
+    }
+
+    private void OnApplicationExit()
+    {
+        CloseSeverFunc();
+    }
+
     public override void OnEnable()
     {
+        CloseSeverFunc();
+
         PhotonNetwork.AddCallbackTarget(this);
     }
 
     public override void OnDisable()
     {
-        CloseSeverFunc();
-
         PhotonNetwork.RemoveCallbackTarget(this);
     }
 
     public void CloseSeverFunc()
     {
-        if (PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.MasterClient == PhotonNetwork.LocalPlayer)
         {
             Debug.Log("ServClose");
 
             transform.GetComponent<PhotonView>().RPC("CloseServer", RpcTarget.All);
 
-            PhotonNetwork.CurrentRoom.IsOpen = false;
-            PhotonNetwork.CurrentRoom.EmptyRoomTtl = 0;
-
             foreach (Player player in PhotonNetwork.PlayerList)
             {
                 PhotonNetwork.CloseConnection(player);
             }
+
+            PhotonNetwork.CurrentRoom.IsOpen = false;
+            PhotonNetwork.CurrentRoom.IsVisible = false;
+            PhotonNetwork.CurrentRoom.RemovedFromList = true;
         }
     }
 
     [PunRPC]
     void CloseServer()
     {
-        if (gameManager != null)
+        if (gameManager.activeSelf == true)
         {
-            gameManager.GetComponent<GameManager>().OpenMenuObject();
+            if (gameManager.GetComponent<GameManager>().eventName == "Menu")
+            {
+                gameManager.GetComponent<GameManager>().OpenMenuObject();
+            }
+            gameManager.SetActive(false);
         }
 
+        isConnectedToMaster = false;
+        isServerAndRoomWork = false;
+
         AdminEnter.SetActive(true);
-        gameManager.SetActive(false);
 
         adminMailInputField.text = "";
         adminPasswordInputField.text = "";
+
+        StartCoroutine(ReJoinToRoom());
     }
 }

@@ -69,7 +69,6 @@ public class RegisteredPersonScript : MonoBehaviour
             foreach (PersonInformationScript.PersonInformation personInformation in allPersonsInformation)
             {
                 //Debug.Log(personInformation.ReturnPersonMail() + " " + personInformation.ReturnPersonEncryptedPassword());
-
                 //Debug.Log(mail + " " + password);
 
                 if (personInformation.ReturnPersonMail() == mail)
