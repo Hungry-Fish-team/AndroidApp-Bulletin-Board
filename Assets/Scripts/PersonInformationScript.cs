@@ -17,6 +17,7 @@ public class PersonInformationScript : MonoBehaviour
         private string personPassword;
         private int personAccessLevel;
         private string personMail;
+        private int personID;
 
         /**
          * 1 - new person without name
@@ -28,12 +29,13 @@ public class PersonInformationScript : MonoBehaviour
         {
         }
 
-        public PersonInformation(string personName, string personMail, string personPassword)
+        public PersonInformation(string personName, string personMail, string personPassword, int personID)
         {
             this.personName = personName;
             this.personMail = personMail;
             this.personPassword = personPassword;
             personAccessLevel = 2;
+            this.personID = personID;
         }
 
         public string ReturnPersonName()
@@ -53,6 +55,7 @@ public class PersonInformationScript : MonoBehaviour
 
         public int ReturnPersonAccessLevel()
         {
+            ReloadPersonAccessLevel();
             return this.personAccessLevel;
         }
 
@@ -212,6 +215,34 @@ public class PersonInformationScript : MonoBehaviour
                 this.personPassword = personPassword;
                 //Debug.Log(personPassword);
             }
+        }
+
+        public int ReturnPersonID()
+        {
+            return this.personID;
+        }
+
+        public void LoadPersonID(int personID)
+        {
+            this.personID = personID;
+        }
+
+        public void GenerateNewPersonID(RegisteredPersonScript.RegisteredPersons registeredPersonScript)
+        {
+            this.personID = -1;
+            do
+            {
+                int randInt = Random.Range(0, 9999);
+
+                Debug.Log(randInt);
+                Debug.Log(registeredPersonScript.CheckPersonID(randInt));
+
+                if (registeredPersonScript.CheckPersonID(randInt) != true)
+                {
+                    this.personID = randInt;
+                }
+            } 
+            while (this.personID == -1);
         }
     }
 

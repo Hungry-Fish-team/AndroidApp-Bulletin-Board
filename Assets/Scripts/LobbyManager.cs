@@ -22,6 +22,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     [SerializeField]
     public bool isServerAndRoomWork = false;
     [SerializeField]
+    public bool isServerClose = false;
+    [SerializeField]
     string versionNum;
     [SerializeField]
     Image BGLoad_image;
@@ -290,25 +292,15 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         StartCoroutine("WaitingResult");
     }
 
-    private void OnApplicationPause()
-    {
-        CloseSeverFunc();
-    }
-
-    private void OnApplicationExit()
-    {
-        CloseSeverFunc();
-    }
-
     public override void OnEnable()
     {
-        CloseSeverFunc();
-
         PhotonNetwork.AddCallbackTarget(this);
     }
 
     public override void OnDisable()
     {
+        isServerClose = true;
+        CloseSeverFunc();
         PhotonNetwork.RemoveCallbackTarget(this);
     }
 
@@ -334,13 +326,16 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     [PunRPC]
     void CloseServer()
     {
-        if (gameManager.activeSelf == true)
+        if (gameManager != null)
         {
-            if (gameManager.GetComponent<GameManager>().eventName == "Menu")
+            if (gameManager.activeSelf == true)
             {
-                gameManager.GetComponent<GameManager>().OpenMenuObject();
+                if (gameManager.GetComponent<GameManager>().eventName == "Menu")
+                {
+                    gameManager.GetComponent<GameManager>().OpenMenuObject();
+                }
+                gameManager.SetActive(false);
             }
-            gameManager.SetActive(false);
         }
 
         isConnectedToMaster = false;
@@ -351,6 +346,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         adminMailInputField.text = "";
         adminPasswordInputField.text = "";
 
-        StartCoroutine(ReJoinToRoom());
+        if (isServerClose != true)
+        {
+            StartCoroutine(ReJoinToRoom());
+        }
     }
 }

@@ -51,14 +51,9 @@ public class CreateNewSignItemScript : MonoBehaviour
         InitializationAllObjects();
     }
 
-    private void Update()
+    public void SaveInfoAboutEvent()
     {
-        CheckInputField();
-    }
-
-    void CheckInputField()
-    {
-        if(nameEventInputField.text != "" && placeNameInputField.text != "" && dateTimeInputField.text != "" && infoEventInputField.text != "")
+        if (nameEventInputField.text != "" && placeNameInputField.text != "" && dateTimeInputField.text != "" && infoEventInputField.text != "")
         {
             nameEvent = nameEventInputField.text;
             placeName = placeNameInputField.text;
@@ -69,36 +64,30 @@ public class CreateNewSignItemScript : MonoBehaviour
             }
             infoEvent = infoEventInputField.text;
 
-            saveButton.interactable = true;
+            if (personInformationScript.personProfile.ReturnPersonName() != "")
+            {
+                saveButton.gameObject.SetActive(false);
+
+                WriteInfo();
+
+                //gameManager.listSigns.Add(signItemScriptableObject);
+
+                gameManager.TryAddNewSignFunc(signItemScriptableObject);
+
+                gameManager.ReloadObjestForDashboard();
+
+                gameManager.OpenMenuObject();
+
+                saveButton.gameObject.SetActive(true);
+            }
+            else
+            {
+                StartCoroutine(gameManager.ErrorOrInfoFunc("Your name is null"));
+            }
         }
         else
         {
-            saveButton.interactable = false;
-            Debug.Log("Empty All lines");
-        }
-    }
-
-    public void SaveInfoAboutEvent()
-    {
-        if (personInformationScript.personProfile.ReturnPersonName() != "") 
-        {
-            saveButton.gameObject.SetActive(false);
-
-            WriteInfo();
-
-            //gameManager.listSigns.Add(signItemScriptableObject);
-
-            gameManager.TryAddNewSignFunc(signItemScriptableObject);
-
-            gameManager.OpenMenuObject();
-
-            gameManager.ReloadObjestForDashboard();
-
-            saveButton.gameObject.SetActive(true);
-        }
-        else
-        {
-            StartCoroutine(gameManager.ErrorOrInfoFunc("Your name is null"));
+            StartCoroutine(gameManager.ErrorOrInfoFunc("No info in InputInfo"));
         }
     }
 

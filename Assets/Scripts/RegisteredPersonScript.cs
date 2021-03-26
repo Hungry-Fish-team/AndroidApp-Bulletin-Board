@@ -21,9 +21,9 @@ public class RegisteredPersonScript : MonoBehaviour
             allPersonsInformation.Add(newPerson);
         }
 
-        public void AddNewRegisteredPerson(string personName, string personMail, string personPassword)
+        public void AddNewRegisteredPerson(string personName, string personMail, string personPassword, int personID)
         {
-            PersonInformationScript.PersonInformation newPerson = new PersonInformationScript.PersonInformation(personName, personMail, personPassword);
+            PersonInformationScript.PersonInformation newPerson = new PersonInformationScript.PersonInformation(personName, personMail, personPassword, personID);
 
             allPersonsInformation.Add(newPerson);
         }
@@ -177,6 +177,7 @@ public class RegisteredPersonScript : MonoBehaviour
                     personDATA.Add("PersonName", personInformation.ReturnPersonName());
                     personDATA.Add("PersonMail", personInformation.ReturnPersonMail());
                     personDATA.Add("PersonPassword", personInformation.ReturnPersonPassword());
+                    personDATA.Add("PersonID", personInformation.ReturnPersonID());
 
                     allRegisteredPerson.Add(personDATA);
                 }
@@ -213,12 +214,14 @@ public class RegisteredPersonScript : MonoBehaviour
                             string personName = personDATA.AsArray[i]["PersonName"];
                             string personMail = personDATA.AsArray[i]["PersonMail"];
                             string personPassword = personDATA.AsArray[i]["PersonPassword"];
+                            int personID = int.Parse(personDATA.AsArray[i]["PersonID"]);
 
                             //Debug.Log(personName + " " + personMail + " " + personPassword);
 
                             personInformation.LoadPersonName(personName);
                             personInformation.LoadPersonMail(personMail);
                             personInformation.LoadPersonPassword(personPassword);
+                            personInformation.LoadPersonID(personID);
 
                             allPersonsInformation.Add(personInformation);
 
@@ -227,6 +230,21 @@ public class RegisteredPersonScript : MonoBehaviour
                     }
                 }
             }
+        }
+
+        public bool CheckPersonID(int newPersonID)
+        {
+            foreach (PersonInformationScript.PersonInformation personInformation in allPersonsInformation)
+            {
+                if (personInformation.ReturnPersonID().ToString() != string.Empty)
+                {
+                    if (personInformation.ReturnPersonID() == newPersonID)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 

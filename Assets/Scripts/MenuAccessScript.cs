@@ -26,7 +26,6 @@ public class MenuAccessScript : MonoBehaviour
     private void OnEnable()
     {
         InitializationAllObjects();
-        AccessInitialization();
     }
 
     private void FirstLevelAccess()
@@ -53,5 +52,10 @@ public class MenuAccessScript : MonoBehaviour
         {
             FirstLevelAccess();
         }
+    }
+
+    private void Update()
+    {
+        AccessInitialization();
     }
 }

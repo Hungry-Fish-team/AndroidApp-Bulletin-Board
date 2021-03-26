@@ -11,6 +11,7 @@ public class AnimationScript : MonoBehaviour
     public GameObject eventObject;
     public GameObject createNewEventObject;
     public GameObject loginObject;
+    public GameObject bg_FileList;
 
     void InitializationAllObjects()
     {
@@ -69,14 +70,14 @@ public class AnimationScript : MonoBehaviour
 
     void CloseImageManager()
     {
-        if (GameObject.Find("BG_FileList") != null) {
-            GameObject parent = GameObject.Find("BG_FileList").transform.GetChild(0).GetChild(0).GetChild(0).gameObject;
+        if (bg_FileList != null) {
+            GameObject parent = bg_FileList.transform.GetChild(0).GetChild(0).GetChild(0).gameObject;
 
             for (int i = 0; i < parent.transform.childCount; i++)
             {
                 Destroy(parent.transform.GetChild(i).gameObject);
             }
-            GameObject.Find("BG_FileList").SetActive(false);
+            bg_FileList.SetActive(false);
         }
     }
 }

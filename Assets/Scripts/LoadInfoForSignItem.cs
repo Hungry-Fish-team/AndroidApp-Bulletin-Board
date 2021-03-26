@@ -44,7 +44,6 @@ public class LoadInfoForSignItem : MonoBehaviour
 
     public void LoadAllInfoAboutSignItem()
     {
-        //Debug.Log(signItem.name);
         gameManager.OpenEventObject(signItem);
     }
 }

@@ -316,6 +316,7 @@ public class LoginAndRegistrationScript : MonoBehaviourPunCallbacks
         return null;
     }
 
+    [PunRPC]
     public void SendMessageToProfileMail(string profileMail, string code)
     {
         MailMessage mailMessage = new MailMessage();
@@ -361,7 +362,8 @@ public class LoginAndRegistrationScript : MonoBehaviourPunCallbacks
 
                 SecondStateOfMailConf();
 
-                SendMessageToProfileMail(personMail, newCode.ToString());
+                photonView.RPC("SendMessageToProfileMail", RpcTarget.MasterClient, personMail, newCode.ToString());
+                //SendMessageToProfileMail(personMail, newCode.ToString());
 
                 mailCodeInputField.text = "";
             }
@@ -422,12 +424,15 @@ public class LoginAndRegistrationScript : MonoBehaviourPunCallbacks
 
                 personInformationScript.personProfile.SetNewPersonAccessLevel(2);
 
+                personInformationScript.personProfile.GenerateNewPersonID(registeredPersonScript.registeredPersons);
+
                 personInformationScript.SaveAllDataToFile();
 
                 photonView.RPC("RegisterFuncToServer", RpcTarget.MasterClient,
                     personInformationScript.personProfile.ReturnPersonName(),
                     personInformationScript.personProfile.ReturnPersonMail(),
-                    personInformationScript.personProfile.ReturnPersonPassword());
+                    personInformationScript.personProfile.ReturnPersonPassword(),
+                    personInformationScript.personProfile.ReturnPersonID());
 
                 //registeredPersonScript.registeredPersons.AddNewRegisteredPerson(personInformationScript.personProfile);
 
@@ -443,11 +448,11 @@ public class LoginAndRegistrationScript : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    public void RegisterFuncToServer(string personName, string personMail, string personPassword)
+    public void RegisterFuncToServer(string personName, string personMail, string personPassword, int personID)
     {
         Debug.Log("Server");
 
-        registeredPersonScript.registeredPersons.AddNewRegisteredPerson(personName, personMail, personPassword);
+        registeredPersonScript.registeredPersons.AddNewRegisteredPerson(personName, personMail, personPassword, personID);
 
         registeredPersonScript.registeredPersons.SaveAllDataToFile();
     }

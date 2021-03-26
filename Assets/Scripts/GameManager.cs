@@ -11,23 +11,36 @@ public class GameManager : MonoBehaviour, IPunObservable
 {
     PersonInformationScript personInformationScript;
 
+    [SerializeField]
     AnimationScript animationScript;
     [SerializeField]
     LoadInfoScript loadInfoScript;
 
-    [SerializeField]
     public List<SignItemScriptableObject> listSigns;
 
     [SerializeField]
     GameObject prefabOfSignItem;
 
     [SerializeField]
-    GameObject contentForDashboard;
+    GameObject dashboard;
 
     [SerializeField]
     public Text errorOrInfoText;
 
     public string eventName = "Dashboard";
+
+    private void OnDisable()
+    {
+        if (dashboard != null)
+        {
+            dashboard.SetActive(false);
+        }
+    }
+
+    private void OnEnable()
+    {
+        dashboard.SetActive(true);
+    }
 
     public IEnumerator ErrorOrInfoFunc(string info)
     {
@@ -131,9 +144,9 @@ public class GameManager : MonoBehaviour, IPunObservable
                 newPeopleList += newSignItemScriptableObject.peopleList[i] + " ";
             }
 
-            byte[] bytesImage = newSignItemScriptableObject.icon.texture.EncodeToPNG();
+            byte[] bytesImage = null;//newSignItemScriptableObject.icon.texture.EncodeToPNG();
 
-            transform.GetComponent<PhotonView>().RPC("AddNewSignFunc", RpcTarget.AllBuffered,
+            transform.GetComponent<PhotonView>().RPC("AddNewSignFunc", RpcTarget.All,
                 newSignItemScriptableObject.nameEventText, newSignItemScriptableObject.placeNameText, newSignItemScriptableObject.dateTimeText,
                 newSignItemScriptableObject.infoEventText, newSignItemScriptableObject.peopleList.Count, newPeopleList, bytesImage, newSignItemScriptableObject.ownerEvent);
         }
@@ -167,6 +180,7 @@ public class GameManager : MonoBehaviour, IPunObservable
     [PunRPC]
     private void AddNewSignFunc(string nameEventText, string placeNameText, string dateTimeText, string infoEventText, int countNewPeople, string newPeopleList, byte[] bytesImage, string ownerEvent)
     {
+
         SignItemScriptableObject newSignItem = new SignItemScriptableObject();
 
         newSignItem.name = listSigns.Count.ToString();
@@ -344,6 +358,8 @@ public class GameManager : MonoBehaviour, IPunObservable
     {
         DestroyAllObjectForDashboard();
 
+        GameObject contentForDashboard = dashboard.transform.GetChild(0).GetChild(0).GetChild(0).gameObject;
+
         for (int i = 0; i < listSigns.Count; i++)
         {
             GameObject newSign = Instantiate(prefabOfSignItem, contentForDashboard.transform);
@@ -355,6 +371,8 @@ public class GameManager : MonoBehaviour, IPunObservable
     private void LoadObjectForDashboardJoined()
     {
         DestroyAllObjectForDashboard();
+
+        GameObject contentForDashboard = dashboard.transform.GetChild(0).GetChild(0).GetChild(0).gameObject;
 
         for (int i = 0; i < listSigns.Count; i++)
         {
@@ -374,6 +392,8 @@ public class GameManager : MonoBehaviour, IPunObservable
     {
         //Debug.Log("Clear");
 
+        GameObject contentForDashboard = dashboard.transform.GetChild(0).GetChild(0).GetChild(0).gameObject;
+
         for (int i = 0; i < contentForDashboard.transform.childCount; i++)
         {
             Destroy(contentForDashboard.transform.GetChild(i).gameObject);
@@ -382,6 +402,8 @@ public class GameManager : MonoBehaviour, IPunObservable
 
     public void ReloadObjestForDashboard()
     {
+        GameObject contentForDashboard = dashboard.transform.GetChild(0).GetChild(0).GetChild(0).gameObject;
+
         DestroyAllLoadedSignItems(contentForDashboard);
 
         LoadObjestForDashboard();
