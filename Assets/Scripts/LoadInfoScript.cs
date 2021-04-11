@@ -81,17 +81,19 @@ public class LoadInfoScript : MonoBehaviour
         {
             if (player.NickName == playerName)
             {
-                gameObject.GetComponent<PhotonView>().RPC("ReturnPersonNameByIDFromServer", player, personName, personIndex);
+                GetComponent<PhotonView>().RPC("ReturnPersonNameByIDFromServer", player, personName, personIndex);
             }
         }
     }
 
     private IEnumerator PersonNameFromServerByID(int personID, int personIndex)
     {
+        GetComponent<PhotonView>().ControllerActorNr = GameObject.Find("GameManager").GetComponent<PhotonView>().ControllerActorNr;
+
         Debug.Log(personID + " " + personIndex);
 
         waitingResultBool = true;
-        gameObject.GetComponent<PhotonView>().RPC("SendRequesToReturnPersonNameByIDFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, personID, personIndex);
+        GetComponent<PhotonView>().RPC("SendRequesToReturnPersonNameByIDFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, personID, personIndex);
         yield return new WaitUntil(() => waitingResultBool == false);
 
         Debug.Log(personsName[personIndex]);
@@ -152,19 +154,22 @@ public class LoadInfoScript : MonoBehaviour
 
     public void JoinOrLeaveButtonFunc()
     {
-        if (joinButton.IsActive() == true)
+        if (personInformationScript.personProfile.ReturnPersonAccessLevel() >= 2 && personInformationScript.personProfile.ReturnPersonID() != -1)
         {
-            AddPersonToEvent();
-        }
-        else
-        {
-            if (deleteButton.IsActive() == false)
+            if (joinButton.IsActive() == true)
             {
-                RemovePersonFromEvent();
+                AddPersonToEvent();
             }
             else
             {
-                DeleteEvent();
+                if (deleteButton.IsActive() == false)
+                {
+                    RemovePersonFromEvent();
+                }
+                else
+                {
+                    DeleteEvent();
+                }
             }
         }
 
@@ -196,16 +201,18 @@ public class LoadInfoScript : MonoBehaviour
         {
             if (openEvent.peopleList[i] == personInformationScript.personProfile.ReturnPersonID().ToString())
             {
-                if (FindNumberOfOpenEvent() != -1) {
+                if (FindNumberOfOpenEvent() != -1)
+                {
                     gameManager.TryRemovePersonFromSign(i, FindNumberOfOpenEvent());
                 }
             }
         }
     }
-    
+
     private void DeleteEvent()
     {
-        if (FindNumberOfOpenEvent() != -1) {
+        if (FindNumberOfOpenEvent() != -1)
+        {
             gameManager.TryRemoveSignFromList(FindNumberOfOpenEvent());
         }
     }
@@ -237,9 +244,9 @@ public class LoadInfoScript : MonoBehaviour
 
     private bool FindMyPersonName()
     {
-        for(int i = 0; i < openEvent.peopleList.Count; i++)
+        for (int i = 0; i < openEvent.peopleList.Count; i++)
         {
-            if(openEvent.peopleList[i] == personInformationScript.personProfile.ReturnPersonID().ToString())
+            if (openEvent.peopleList[i] == personInformationScript.personProfile.ReturnPersonID().ToString())
             {
                 return true;
             }

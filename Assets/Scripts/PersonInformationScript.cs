@@ -93,6 +93,7 @@ public class PersonInformationScript : MonoBehaviour
         {
             personPassword = null;
             personAccessLevel = 1;
+            personID = -1;
         }
 
         public void PasswordInput(string input)

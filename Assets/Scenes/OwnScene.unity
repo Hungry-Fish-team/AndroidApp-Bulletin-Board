@@ -9738,6 +9738,7 @@ MonoBehaviour:
     type: 3}
   dashboard: {fileID: 1141460753}
   errorOrInfoText: {fileID: 1143955138}
+  personsName: []
   eventName: Dashboard
 --- !u!114 &1985190897
 MonoBehaviour:

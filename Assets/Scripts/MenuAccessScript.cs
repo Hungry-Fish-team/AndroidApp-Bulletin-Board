@@ -44,7 +44,7 @@ public class MenuAccessScript : MonoBehaviour
 
     private void AccessInitialization()
     {
-        Debug.Log(personInformationScript.personProfile.ReturnPersonLoginState());
+        //Debug.Log(personInformationScript.personProfile.ReturnPersonLoginState());
         if (personInformationScript.personProfile.ReturnPersonLoginState())
         {
             if (personInformationScript.personProfile.ReturnPersonAccessLevel() >= 2)

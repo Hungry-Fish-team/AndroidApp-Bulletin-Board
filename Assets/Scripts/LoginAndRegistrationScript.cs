@@ -173,7 +173,7 @@ public class LoginAndRegistrationScript : MonoBehaviourPunCallbacks
 
             PhotonNetwork.NickName = personName;
 
-            if (personMail != null)
+            if (personInformationScript.personProfile.ReturnPersonLoginState())
             {
                 photonView.RPC("ChangePersonNameOnServer", RpcTarget.MasterClient, personMail, personName);
             }
@@ -431,6 +431,8 @@ public class LoginAndRegistrationScript : MonoBehaviourPunCallbacks
 
                 personInformationScript.personProfile.GenerateNewPersonID(registeredPersonScript.registeredPersons);
 
+                personInformationScript.personProfile.LoadPersonLoginState(true);
+
                 personInformationScript.SaveAllDataToFile();
 
                 photonView.RPC("RegisterFuncToServer", RpcTarget.MasterClient,
@@ -468,9 +470,12 @@ public class LoginAndRegistrationScript : MonoBehaviourPunCallbacks
 
     public void LeaveFromProfileFunc()
     {
+        personInformationScript.personProfile.LoadPersonLoginState(false);
+
         personInformationScript.personProfile.DeleteProfile();
 
         personInformationScript.SaveAllDataToFile();
+
         StartCoroutine(ReloadedInformationForInputField());
     }
 
@@ -546,6 +551,8 @@ public class LoginAndRegistrationScript : MonoBehaviourPunCallbacks
                     yield return new WaitUntil(() => waitingResultBool == false);
 
                     personInformationScript.personProfile.LoadPersonName(personName);
+
+                    Debug.Log(personName);
 
                     loginAndRegistrationInputField.text = personInformationScript.personProfile.ReturnPersonName();
 
