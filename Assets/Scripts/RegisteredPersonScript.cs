@@ -146,6 +146,18 @@ public class RegisteredPersonScript : MonoBehaviour
             }
         }
 
+        public string ReturnPersonNameByIDFromServer(int personID)
+        {
+            foreach (PersonInformationScript.PersonInformation personInformation in allPersonsInformation)
+            {
+                if (personInformation.ReturnPersonID() == personID)
+                {
+                    return personInformation.ReturnPersonName();
+                }
+            }
+            return null;
+        }
+
         string fileForProfileSave;
 
         private void LoadFiles()

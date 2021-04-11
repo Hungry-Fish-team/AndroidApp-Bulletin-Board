@@ -297,6 +297,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         PhotonNetwork.AddCallbackTarget(this);
     }
 
+    public void OnApplicationQuit()
+    {
+        isServerClose = true;
+        CloseSeverFunc();
+    }
+
     public override void OnDisable()
     {
         isServerClose = true;

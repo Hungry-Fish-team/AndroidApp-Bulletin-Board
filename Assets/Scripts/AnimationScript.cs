@@ -56,11 +56,11 @@ public class AnimationScript : MonoBehaviour
             createNewEventObject.GetComponent<Animator>().SetBool("isClosed", true);
             CloseImageManager();
             loginObject.GetComponent<Animator>().SetBool("isClosed", true);
-            Invoke("CloseObjects", 0.5f);
+            Invoke("CloseObjects", 0.25f);
         }
     }
 
-    void CloseObjects()
+    public void CloseObjects()
     {
         menuObject.SetActive(false);
         eventObject.SetActive(false);

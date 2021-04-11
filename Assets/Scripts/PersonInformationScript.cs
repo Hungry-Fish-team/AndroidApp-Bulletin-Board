@@ -18,6 +18,7 @@ public class PersonInformationScript : MonoBehaviour
         private int personAccessLevel;
         private string personMail;
         private int personID;
+        private bool isPersonJoinedToServer = false;
 
         /**
          * 1 - new person without name
@@ -244,6 +245,16 @@ public class PersonInformationScript : MonoBehaviour
             } 
             while (this.personID == -1);
         }
+
+        public void LoadPersonLoginState(bool state)
+        {
+            this.isPersonJoinedToServer = state;
+        }
+
+        public bool ReturnPersonLoginState()
+        {
+            return this.isPersonJoinedToServer;
+        }
     }
 
     public PersonInformation personProfile = new PersonInformation();
@@ -316,6 +327,8 @@ public class PersonInformationScript : MonoBehaviour
         LoadAllDataFromFile();
 
         LoadPlayerNickName();
+
+        personProfile.ReturnPersonID();
     }
 
     private void OnEnable()

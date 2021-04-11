@@ -1,15 +1,17 @@
-﻿using System.Collections;
+﻿using Photon.Pun;
+using Photon.Realtime;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class LoadInfoScript : MonoBehaviour
 {
-    public delegate void SomeFuncToCall();
-    SomeFuncToCall someFuncToCall;
-
     GameManager gameManager;
     PersonInformationScript personInformationScript;
+    RegisteredPersonScript registeredPersonScript;
+
+    PhotonView photonView;
 
     public SignItemScriptableObject openEvent;
 
@@ -24,6 +26,8 @@ public class LoadInfoScript : MonoBehaviour
     [SerializeField]
     GameObject peopleListContent;
     [SerializeField]
+    Text peopleCountText;
+    [SerializeField]
     Button joinButton;
     [SerializeField]
     Button leaveButton;
@@ -33,20 +37,20 @@ public class LoadInfoScript : MonoBehaviour
     [SerializeField]
     GameObject personPrefab;
 
+    [SerializeField]
+    string[] personsName;
+    //string personName;
+
+    bool waitingResultBool = false;
+
     void InitializationAllObjects()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         personInformationScript = GameObject.Find("GameManager").GetComponent<PersonInformationScript>();
+        registeredPersonScript = GameObject.Find("GameManager").GetComponent<RegisteredPersonScript>();
+        photonView = GetComponent<PhotonView>();
+        photonView.ControllerActorNr = GameObject.Find("GameManager").GetComponent<PhotonView>().ControllerActorNr;
     }
-
-    //void Start()
-    //{
-    //    InitializationAllObjects();
-
-    //    LoadInfo();
-
-    //    LoadJoinOrLeaveButton();
-    //}
 
     private void OnEnable()
     {
@@ -55,20 +59,66 @@ public class LoadInfoScript : MonoBehaviour
         LoadInfo();
     }
 
+    [PunRPC]
+    public void ReturnPersonNameByIDFromServer(string personNameFromServer, int personIndex)
+    {
+        personsName[personIndex] = personNameFromServer;
+        //personName = personNameFromServer;
+
+        waitingResultBool = false;
+    }
+
+    [PunRPC]
+    public void SendRequesToReturnPersonNameByIDFromServer(string playerName, int personID, int personIndex)
+    {
+        InitializationAllObjects();
+
+        string personName = registeredPersonScript.registeredPersons.ReturnPersonNameByIDFromServer(personID);
+
+        Debug.Log(personName);
+
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+            if (player.NickName == playerName)
+            {
+                gameObject.GetComponent<PhotonView>().RPC("ReturnPersonNameByIDFromServer", player, personName, personIndex);
+            }
+        }
+    }
+
+    private IEnumerator PersonNameFromServerByID(int personID, int personIndex)
+    {
+        Debug.Log(personID + " " + personIndex);
+
+        waitingResultBool = true;
+        gameObject.GetComponent<PhotonView>().RPC("SendRequesToReturnPersonNameByIDFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, personID, personIndex);
+        yield return new WaitUntil(() => waitingResultBool == false);
+
+        Debug.Log(personsName[personIndex]);
+        GameObject newPerson = Instantiate(personPrefab, peopleListContent.transform);
+        newPerson.transform.GetChild(0).GetComponent<Text>().text = personsName[personIndex];
+        //newPerson.transform.GetChild(0).GetComponent<Text>().text = personName;
+    }
+
     public void LoadInfo()
     {
         DestroyAllInfo();
+
+        Debug.Log(openEvent.peopleList.Count);
 
         nameEventText.text = openEvent.nameEventText;
         placeNameText.text = openEvent.placeNameText;
         dateTimeText.text = openEvent.dateTimeText;
         infoEventText.text = openEvent.infoEventText;
+        peopleCountText.text = "Count of people:  " + openEvent.peopleList.Count.ToString();
+
+        personsName = new string[openEvent.peopleList.Count];
+
         if (openEvent.peopleList.Count != 0)
         {
             for (int i = 0; i < openEvent.peopleList.Count; i++)
             {
-                GameObject newPerson = Instantiate(personPrefab, peopleListContent.transform);
-                newPerson.transform.GetChild(0).GetComponent<Text>().text = openEvent.peopleList[i];
+                StartCoroutine(PersonNameFromServerByID(int.Parse(openEvent.peopleList[i]), i));
             }
         }
 
@@ -83,6 +133,9 @@ public class LoadInfoScript : MonoBehaviour
             placeNameText.text = "";
             dateTimeText.text = "";
             infoEventText.text = "";
+            peopleCountText.text = "";
+
+            //personName = string.Empty;
 
             for (int i = 0; i < peopleListContent.transform.childCount; i++)
             {
@@ -120,15 +173,6 @@ public class LoadInfoScript : MonoBehaviour
 
     public int FindNumberOfOpenEvent()
     {
-        //foreach (SignItemScriptableObject signItem in gameManager.listSigns)
-        //{
-        //    if(signItem == openEvent)
-        //    {
-        //        return gameManager.listSigns.IndexOf(openEvent);
-        //    }
-        //}
-        //return -1;
-
         for (int i = 0; i < gameManager.listSigns.Count; i++)
         {
             if (openEvent != null && openEvent.name == gameManager.listSigns[i].name)
@@ -143,19 +187,17 @@ public class LoadInfoScript : MonoBehaviour
 
     private void AddPersonToEvent()
     {
-        gameManager.TryAddPersonToSign(personInformationScript.personProfile.ReturnPersonName(), FindNumberOfOpenEvent());
-        //openEvent = gameManager.listSigns[FindNumberOfOpenEvent()];
+        gameManager.TryAddPersonToSign(personInformationScript.personProfile.ReturnPersonID().ToString(), FindNumberOfOpenEvent());
     }
 
     private void RemovePersonFromEvent()
     {
         for (int i = 0; i < openEvent.peopleList.Count; i++)
         {
-            if (openEvent.peopleList[i] == personInformationScript.personProfile.ReturnPersonName())
+            if (openEvent.peopleList[i] == personInformationScript.personProfile.ReturnPersonID().ToString())
             {
                 if (FindNumberOfOpenEvent() != -1) {
                     gameManager.TryRemovePersonFromSign(i, FindNumberOfOpenEvent());
-                    //openEvent = gameManager.listSigns[FindNumberOfOpenEvent()];
                 }
             }
         }
@@ -166,8 +208,6 @@ public class LoadInfoScript : MonoBehaviour
         if (FindNumberOfOpenEvent() != -1) {
             gameManager.TryRemoveSignFromList(FindNumberOfOpenEvent());
         }
-
-        //gameManager.TryOpenMenu();
     }
 
     private void LoadJoinOrLeaveButton()
@@ -176,7 +216,7 @@ public class LoadInfoScript : MonoBehaviour
         {
             joinButton.gameObject.SetActive(false);
 
-            if (openEvent.ownerEvent == personInformationScript.personProfile.ReturnPersonName())
+            if (openEvent.ownerEvent == personInformationScript.personProfile.ReturnPersonID().ToString())
             {
                 leaveButton.gameObject.SetActive(false);
                 deleteButton.gameObject.SetActive(true);
@@ -199,7 +239,7 @@ public class LoadInfoScript : MonoBehaviour
     {
         for(int i = 0; i < openEvent.peopleList.Count; i++)
         {
-            if(openEvent.peopleList[i] == personInformationScript.personProfile.ReturnPersonName())
+            if(openEvent.peopleList[i] == personInformationScript.personProfile.ReturnPersonID().ToString())
             {
                 return true;
             }

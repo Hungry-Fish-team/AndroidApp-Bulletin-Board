@@ -109,12 +109,12 @@ public class CreateNewSignItemScript : MonoBehaviour
             signItemScriptableObject.icon = nonImage;
         }
         signItemScriptableObject.infoEventText = infoEvent;
-        signItemScriptableObject.ownerEvent = personInformationScript.personProfile.ReturnPersonName();
+        signItemScriptableObject.ownerEvent = personInformationScript.personProfile.ReturnPersonID().ToString();
 
-        if (personInformationScript.personProfile.ReturnPersonName() != "")
+        if (personInformationScript.personProfile.ReturnPersonID().ToString() != "")
         {
             signItemScriptableObject.peopleList = new List<string>();
-            signItemScriptableObject.peopleList.Add(personInformationScript.personProfile.ReturnPersonName());
+            signItemScriptableObject.peopleList.Add(personInformationScript.personProfile.ReturnPersonID().ToString());
         }
         else
         {

@@ -3773,7 +3773,7 @@ MonoBehaviour:
   m_Content: {fileID: 379177962}
   m_Horizontal: 0
   m_Vertical: 1
-  m_MovementType: 1
+  m_MovementType: 2
   m_Elasticity: 0.01
   m_Inertia: 1
   m_DecelerationRate: 0.135
@@ -4703,7 +4703,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 1021739640}
   m_OnClick:
     m_PersistentCalls:
@@ -5278,8 +5278,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.022592595, y: 0.011314816}
   m_AnchorMax: {x: 0.9732038, y: 0.87884265}
-  m_AnchoredPosition: {x: 4.5, y: -0.5}
-  m_SizeDelta: {x: 7, y: -3.1159668}
+  m_AnchoredPosition: {x: 4.5, y: 0}
+  m_SizeDelta: {x: 7, y: -1.999939}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1143955136
 GameObject:
@@ -5820,6 +5820,7 @@ GameObject:
   - component: {fileID: 1239132866}
   - component: {fileID: 1239132867}
   - component: {fileID: 1239132868}
+  - component: {fileID: 1239132869}
   m_Layer: 5
   m_Name: Event
   m_TagString: Untagged
@@ -5885,11 +5886,35 @@ MonoBehaviour:
   dateTimeText: {fileID: 143872861}
   infoEventText: {fileID: 1255686062}
   peopleListContent: {fileID: 379177961}
+  peopleCountText: {fileID: 1582354194}
   joinButton: {fileID: 533991732}
   leaveButton: {fileID: 11820646}
   deleteButton: {fileID: 2004044687}
   personPrefab: {fileID: 8490551606907987443, guid: 6fe3f5fb9b8654b479af7bf57ed1825d,
     type: 3}
+  personsName: []
+--- !u!114 &1239132869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1239132865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 3
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1243067696
 GameObject:
   m_ObjectHideFlags: 0
@@ -6706,7 +6731,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 1352907206}
   m_OnClick:
     m_PersistentCalls:
@@ -7615,7 +7640,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: 'People: Count'
+  m_Text: 'Count of people: '
 --- !u!222 &1582354195
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -9708,6 +9733,7 @@ MonoBehaviour:
   animationScript: {fileID: 0}
   loadInfoScript: {fileID: 1239132868}
   listSigns: []
+  sendInfoIndex: 0
   prefabOfSignItem: {fileID: 3461770587137528662, guid: 57f03f18c41dd414f94f09c62e77d93f,
     type: 3}
   dashboard: {fileID: 1141460753}
@@ -9831,10 +9857,11 @@ MonoBehaviour:
   personName: 
   personPassword: 
   personMail: 
+  personID: 0
   newCode: 0
   appsMail: hungry.fish.team@gmail.com
   appsMailPassword: Vovan@123
-  isWaitingResult: 0
+  waitingResultBool: 0
   isThisRegisteredPerson: 0
   isThisRegisteredPersonWithoutPassword: 0
 --- !u!1 &2004044685

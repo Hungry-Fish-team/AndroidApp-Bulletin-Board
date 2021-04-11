@@ -6,10 +6,12 @@ using SimpleJSON;
 using System.IO;
 using Photon.Pun;
 using UnityEditor;
+using Photon.Realtime;
 
 public class GameManager : MonoBehaviour, IPunObservable
 {
     PersonInformationScript personInformationScript;
+    RegisteredPersonScript registeredPersonScript;
 
     [SerializeField]
     AnimationScript animationScript;
@@ -17,6 +19,8 @@ public class GameManager : MonoBehaviour, IPunObservable
     LoadInfoScript loadInfoScript;
 
     public List<SignItemScriptableObject> listSigns;
+
+    public int sendInfoIndex = 0;
 
     [SerializeField]
     GameObject prefabOfSignItem;
@@ -26,6 +30,11 @@ public class GameManager : MonoBehaviour, IPunObservable
 
     [SerializeField]
     public Text errorOrInfoText;
+
+    bool waitingResultBool = false;
+
+    [SerializeField]
+    string[] personsName;
 
     public string eventName = "Dashboard";
 
@@ -63,6 +72,8 @@ public class GameManager : MonoBehaviour, IPunObservable
 
     private void SendListSigns(PhotonStream stream)
     {
+        stream.SendNext(sendInfoIndex);
+
         stream.SendNext(listSigns.Count);
 
         for (int i = 0; i < listSigns.Count; i++)
@@ -96,47 +107,83 @@ public class GameManager : MonoBehaviour, IPunObservable
 
     private void TakeListSigns(PhotonStream stream)
     {
-        listSigns.Clear();
+        int newSendInfoIndex = (int)stream.ReceiveNext();
+        //Debug.Log(newSendInfoIndex);
 
-        int countSigns = (int)stream.ReceiveNext();
-
-        for (int i = 0; i < countSigns; i++)
+        if (sendInfoIndex != newSendInfoIndex)
         {
-            SignItemScriptableObject newSignItem = new SignItemScriptableObject();
+            sendInfoIndex = newSendInfoIndex;
 
-            newSignItem.nameEventText = (string)stream.ReceiveNext();
-            newSignItem.placeNameText = (string)stream.ReceiveNext();
-            newSignItem.dateTimeText = (string)stream.ReceiveNext();
-            newSignItem.infoEventText = (string)stream.ReceiveNext();
+            listSigns.Clear();
 
-            int countPersonOfSign = (int)stream.ReceiveNext();
-            List<string> newPeopleList = new List<string>();
-            for (int j = 0; j < countPersonOfSign; j++)
+            int countSigns = (int)stream.ReceiveNext();
+
+            for (int i = 0; i < countSigns; i++)
             {
-                newPeopleList.Add((string)stream.ReceiveNext());
+                SignItemScriptableObject newSignItem = new SignItemScriptableObject();
+
+                newSignItem.nameEventText = (string)stream.ReceiveNext();
+                newSignItem.placeNameText = (string)stream.ReceiveNext();
+                newSignItem.dateTimeText = (string)stream.ReceiveNext();
+                newSignItem.infoEventText = (string)stream.ReceiveNext();
+
+                int countPersonOfSign = (int)stream.ReceiveNext();
+                List<string> newPeopleList = new List<string>();
+                for (int j = 0; j < countPersonOfSign; j++)
+                {
+                    newPeopleList.Add((string)stream.ReceiveNext());
+                }
+                newSignItem.peopleList = newPeopleList;
+
+                byte[] bytes = (byte[])stream.ReceiveNext();
+                //Texture2D texture = new Texture2D(64, 64, TextureFormat.PVRTC_RGBA4, false);
+                //texture.LoadRawTextureData(bytes);
+                Texture2D texture = new Texture2D(64, 64);
+                texture.LoadImage(bytes);
+                texture.Apply();
+                newSignItem.icon = Sprite.Create(texture, new Rect(0.0f, 0.0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100.0f);
+
+                newSignItem.ownerEvent = (string)stream.ReceiveNext();
+
+                //if (listSigns.Count < countSigns)
+                //{
+                //    listSigns.Add(newSignItem);
+                //}
+                //else if (listSigns.Count > countSigns)
+                //{
+                //    for (int index = 0; index < listSigns.Count; index++)
+                //    {
+                //        if (listSigns[index] == newSignItem)
+                //        {
+
+                //        }
+                //    }
+                //}
+                //else 
+                //{
+                //    for (int index = 0; index < listSigns.Count; index++)
+                //    {
+                //        if (listSigns[index] != newSignItem)
+                //        {
+                //            listSigns[index] = newSignItem;
+                //            listSigns.Add(newSignItem);
+                //        }
+                //    }
+                //}
+
+                listSigns.Add(newSignItem);
             }
-            newSignItem.peopleList = newPeopleList;
 
-            byte[] bytes = (byte[])stream.ReceiveNext();
-            //Texture2D texture = new Texture2D(64, 64, TextureFormat.PVRTC_RGBA4, false);
-            //texture.LoadRawTextureData(bytes);
-            Texture2D texture = new Texture2D(64, 64);
-            texture.LoadImage(bytes);
-            texture.Apply();
-            newSignItem.icon = Sprite.Create(texture, new Rect(0.0f, 0.0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100.0f);
-
-            newSignItem.ownerEvent = (string)stream.ReceiveNext();
-
-            listSigns.Add(newSignItem);
+            LoadObjestForDashboard();
         }
-
-        LoadObjestForDashboard();
     }
 
     public void TryAddNewSignFunc(SignItemScriptableObject newSignItemScriptableObject)
     {
         //if (!PhotonNetwork.IsMasterClient)
         {
+            sendInfoIndex++;
+
             string newPeopleList = "";
 
             for (int i = 0; i < newSignItemScriptableObject.peopleList.Count; i++)
@@ -146,7 +193,7 @@ public class GameManager : MonoBehaviour, IPunObservable
 
             byte[] bytesImage = null;//newSignItemScriptableObject.icon.texture.EncodeToPNG();
 
-            transform.GetComponent<PhotonView>().RPC("AddNewSignFunc", RpcTarget.All,
+            GetComponent<PhotonView>().RPC("AddNewSignFunc", RpcTarget.All,
                 newSignItemScriptableObject.nameEventText, newSignItemScriptableObject.placeNameText, newSignItemScriptableObject.dateTimeText,
                 newSignItemScriptableObject.infoEventText, newSignItemScriptableObject.peopleList.Count, newPeopleList, bytesImage, newSignItemScriptableObject.ownerEvent);
         }
@@ -154,32 +201,34 @@ public class GameManager : MonoBehaviour, IPunObservable
 
     public void TryRemoveSignFromList(int numberOfSign)
     {
-        transform.GetComponent<PhotonView>().RPC("RemoveSignFromList", RpcTarget.All, numberOfSign);
+        GetComponent<PhotonView>().RPC("RemoveSignFromList", RpcTarget.All, numberOfSign);
     }
 
     public void TryRemovePersonFromSign(int numberOfPerson, int numberOfSign)
     {
-        transform.GetComponent<PhotonView>().RPC("RemovePersonFromSign", RpcTarget.All, numberOfPerson, numberOfSign);
+        GetComponent<PhotonView>().RPC("RemovePersonFromSign", RpcTarget.All, numberOfPerson, numberOfSign);
     }
 
     public void TryAddPersonToSign(string nameOfPerson, int numberOfSign)
     {
-        transform.GetComponent<PhotonView>().RPC("AddNewPersonToSign", RpcTarget.All, nameOfPerson, numberOfSign);
+        GetComponent<PhotonView>().RPC("AddNewPersonToSign", RpcTarget.All, nameOfPerson, numberOfSign);
     }
 
     public void TryOpenMenu()
     {
-        transform.GetComponent<PhotonView>().RPC("OpenMenuObject", RpcTarget.All);
+        GetComponent<PhotonView>().RPC("OpenMenuObject", RpcTarget.All);
     }
 
     public void TryStartReloadSign()
     {
-        transform.GetComponent<PhotonView>().RPC("StartReloadSign", RpcTarget.All);
+        Debug.Log("Try reload");
+        GetComponent<PhotonView>().RPC("StartReloadSign", RpcTarget.All);
     }
 
     [PunRPC]
     private void AddNewSignFunc(string nameEventText, string placeNameText, string dateTimeText, string infoEventText, int countNewPeople, string newPeopleList, byte[] bytesImage, string ownerEvent)
     {
+        sendInfoIndex++;
 
         SignItemScriptableObject newSignItem = new SignItemScriptableObject();
 
@@ -211,8 +260,24 @@ public class GameManager : MonoBehaviour, IPunObservable
     }
 
     [PunRPC]
+    private void AddNewInfoIndex()
+    {
+        if (sendInfoIndex < 1000)
+        {
+            sendInfoIndex++;
+        }
+        else
+        {
+            sendInfoIndex = 0;
+            sendInfoIndex++;
+        }
+    }
+
+    [PunRPC]
     private void RemoveSignFromList(int numberOfSign)
     {
+        AddNewInfoIndex();
+
         if (loadInfoScript.FindNumberOfOpenEvent() == numberOfSign)
         {
             OpenMenuObject();
@@ -226,31 +291,86 @@ public class GameManager : MonoBehaviour, IPunObservable
     [PunRPC]
     private void RemovePersonFromSign(int numberOfPerson, int numberOfSign)
     {
+        AddNewInfoIndex();
+
         listSigns[numberOfSign].peopleList.RemoveAt(numberOfPerson);
 
         loadInfoScript.openEvent = listSigns[numberOfSign];
 
-        TryStartReloadSign();
+        //TryStartReloadSign();
+
+        StartReloadSign();
     }
 
     [PunRPC]
     private void AddNewPersonToSign(string nameOfPerson, int numberOfSign)
     {
+        AddNewInfoIndex();
+
         listSigns[numberOfSign].peopleList.Add(nameOfPerson);
 
         loadInfoScript.openEvent = listSigns[numberOfSign];
 
-        TryStartReloadSign();
+        //TryStartReloadSign();
+
+        StartReloadSign();
     }
 
     [PunRPC]
     private void StartReloadSign()
     {
+        AddNewInfoIndex();
+
         if (loadInfoScript.isActiveAndEnabled == true)
         {
+            Debug.Log("Reload");
             loadInfoScript.LoadInfo();
         }
     }
+
+    //private IEnumerator PersonNameFromServerByID(int personID, int personIndex)
+    //{
+    //    Debug.Log(personID + " " + personIndex);
+
+    //    waitingResultBool = true;
+    //    photonView.RPC("SendRequesToReturnPersonNameByIDFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, personID, personIndex);
+    //    yield return new WaitUntil(() => waitingResultBool == false);
+
+    //    Debug.Log(personsName[personIndex]);
+    //    GameObject newPerson = Instantiate(personPrefab, peopleListContent.transform);
+    //    newPerson.transform.GetChild(0).GetComponent<Text>().text = personsName[personIndex];
+    //    //newPerson.transform.GetChild(0).GetComponent<Text>().text = personName;
+    //}
+
+    //[PunRPC]
+    //public void ReturnPersonNameByIDFromServer(string personNameFromServer, int personIndex)
+    //{
+    //    personsName[personIndex] = personNameFromServer;
+    //    //personName = personNameFromServer;
+
+    //    waitingResultBool = false;
+    //}
+
+    //[PunRPC]
+    //public void SendRequesToReturnPersonNameByIDFromServer(string playerName, int personID, int personIndex)
+    //{
+    //    //if (gameManager == null)
+    //    //{
+    //    //    InitializationAllObjects();
+    //    //}
+
+    //    string personName = registeredPersonScript.registeredPersons.ReturnPersonNameByIDFromServer(personID);
+
+    //    Debug.Log(personName);
+
+    //    foreach (Player player in PhotonNetwork.PlayerList)
+    //    {
+    //        if (player.NickName == playerName)
+    //        {
+    //            GetComponent<PhotonView>().RPC("ReturnPersonNameByIDFromServer", player, personName, personIndex);
+    //        }
+    //    }
+    //}
 
     void AppSettings()
     {
@@ -267,6 +387,7 @@ public class GameManager : MonoBehaviour, IPunObservable
 
         animationScript = GameObject.Find("GameManager").GetComponent<AnimationScript>();
         personInformationScript = GameObject.Find("GameManager").GetComponent<PersonInformationScript>();
+        registeredPersonScript = GameObject.Find("GameManager").GetComponent<RegisteredPersonScript>();
     }
 
     void Start()
@@ -390,8 +511,6 @@ public class GameManager : MonoBehaviour, IPunObservable
 
     private void DestroyAllObjectForDashboard()
     {
-        //Debug.Log("Clear");
-
         GameObject contentForDashboard = dashboard.transform.GetChild(0).GetChild(0).GetChild(0).gameObject;
 
         for (int i = 0; i < contentForDashboard.transform.childCount; i++)
