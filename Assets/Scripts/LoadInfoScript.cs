@@ -75,7 +75,7 @@ public class LoadInfoScript : MonoBehaviour
 
         string personName = registeredPersonScript.registeredPersons.ReturnPersonNameByIDFromServer(personID);
 
-        Debug.Log(personName);
+        //Debug.Log(personName);
 
         foreach (Player player in PhotonNetwork.PlayerList)
         {
@@ -90,13 +90,13 @@ public class LoadInfoScript : MonoBehaviour
     {
         GetComponent<PhotonView>().ControllerActorNr = GameObject.Find("GameManager").GetComponent<PhotonView>().ControllerActorNr;
 
-        Debug.Log(personID + " " + personIndex);
+        //Debug.Log(personID + " " + personIndex);
 
         waitingResultBool = true;
         GetComponent<PhotonView>().RPC("SendRequesToReturnPersonNameByIDFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, personID, personIndex);
         yield return new WaitUntil(() => waitingResultBool == false);
 
-        Debug.Log(personsName[personIndex]);
+        //Debug.Log(personsName[personIndex]);
         GameObject newPerson = Instantiate(personPrefab, peopleListContent.transform);
         newPerson.transform.GetChild(0).GetComponent<Text>().text = personsName[personIndex];
         //newPerson.transform.GetChild(0).GetComponent<Text>().text = personName;
@@ -106,7 +106,7 @@ public class LoadInfoScript : MonoBehaviour
     {
         DestroyAllInfo();
 
-        Debug.Log(openEvent.peopleList.Count);
+        //Debug.Log(openEvent.peopleList.Count);
 
         nameEventText.text = openEvent.nameEventText;
         placeNameText.text = openEvent.placeNameText;

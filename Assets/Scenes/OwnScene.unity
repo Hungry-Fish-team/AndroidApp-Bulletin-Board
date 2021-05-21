@@ -203,7 +203,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1239132868}
+      - m_Target: {fileID: 1985190898}
         m_MethodName: JoinOrLeaveButtonFunc
         m_Mode: 1
         m_Arguments:
@@ -426,7 +426,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -24, y: 0.00012207031}
+  m_AnchoredPosition: {x: -23.999998, y: 0.00012207031}
   m_SizeDelta: {x: 2821.901, y: 450.86182}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &45808004
@@ -1377,7 +1377,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -24, y: 0.00012207031}
+  m_AnchoredPosition: {x: -23.999998, y: 0.00012207031}
   m_SizeDelta: {x: 2821.901, y: 450.86182}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &296742796
@@ -1675,7 +1675,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.023000002, y: 0.012}
   m_AnchorMax: {x: 0.97700006, y: 0.9132403}
-  m_AnchoredPosition: {x: -345.82, y: 0.5917969}
+  m_AnchoredPosition: {x: -345.82004, y: 0.5917969}
   m_SizeDelta: {x: -691.6385, y: -0.8718262}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &345037464
@@ -2665,7 +2665,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1239132868}
+      - m_Target: {fileID: 1985190898}
         m_MethodName: JoinOrLeaveButtonFunc
         m_Mode: 1
         m_Arguments:
@@ -2996,7 +2996,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.06619138, y: 0.064}
   m_AnchorMax: {x: 0.933, y: 0.11079942}
-  m_AnchoredPosition: {x: 0, y: -3.0002441}
+  m_AnchoredPosition: {x: 0, y: -3.000122}
   m_SizeDelta: {x: -1.2069092, y: 2.074707}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!1 &680137138
@@ -3175,7 +3175,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.02272222, y: 0.013681315}
   m_AnchorMax: {x: 0.97700006, y: 0.9138776}
-  m_AnchoredPosition: {x: 0.5, y: -4.9198}
+  m_AnchoredPosition: {x: 0.5, y: -4.9196777}
   m_SizeDelta: {x: -1, y: 4.1523438}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &691213750
@@ -4382,7 +4382,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.023000002, y: 0.012279264}
   m_AnchorMax: {x: 0.9766296, y: 0.9131232}
-  m_AnchoredPosition: {x: -345.90088, y: -0.41015625}
+  m_AnchoredPosition: {x: -345.90085, y: -0.41015625}
   m_SizeDelta: {x: -691.4764, y: 1.1237793}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &988127631
@@ -5205,7 +5205,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.02272222, y: 0.011519625}
   m_AnchorMax: {x: 0.97700006, y: 0.9138776}
-  m_AnchoredPosition: {x: -345.2998, y: -0.91015625}
+  m_AnchoredPosition: {x: -345.29984, y: -0.91015625}
   m_SizeDelta: {x: -692.6772, y: -5.875702}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1118902748
@@ -5819,8 +5819,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1239132866}
   - component: {fileID: 1239132867}
-  - component: {fileID: 1239132868}
-  - component: {fileID: 1239132869}
   m_Layer: 5
   m_Name: Event
   m_TagString: Untagged
@@ -5868,53 +5866,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &1239132868
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1239132865}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad4659bdc0e1d9e4a8848cecf037cae0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  openEvent: {fileID: 0}
-  nameEventText: {fileID: 1290410395}
-  placeNameText: {fileID: 586803175}
-  dateTimeText: {fileID: 143872861}
-  infoEventText: {fileID: 1255686062}
-  peopleListContent: {fileID: 379177961}
-  peopleCountText: {fileID: 1582354194}
-  joinButton: {fileID: 533991732}
-  leaveButton: {fileID: 11820646}
-  deleteButton: {fileID: 2004044687}
-  personPrefab: {fileID: 8490551606907987443, guid: 6fe3f5fb9b8654b479af7bf57ed1825d,
-    type: 3}
-  personsName: []
---- !u!114 &1239132869
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1239132865}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents: []
-  sceneViewId: 3
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
 --- !u!1 &1243067696
 GameObject:
   m_ObjectHideFlags: 0
@@ -7355,7 +7306,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.06619138, y: 0.009332188}
   m_AnchorMax: {x: 0.933, y: 0.058000002}
-  m_AnchoredPosition: {x: -15.637024, y: 270.17004}
+  m_AnchoredPosition: {x: -15.637026, y: 270.17004}
   m_SizeDelta: {x: -0.2010498, y: -2.9598389}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!1 &1489574223
@@ -8407,7 +8358,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -24, y: 0.00012207031}
+  m_AnchoredPosition: {x: -23.999998, y: 0.00012207031}
   m_SizeDelta: {x: 2821.901, y: 450.86182}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1748428601
@@ -8490,7 +8441,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.023000002, y: 0.012}
   m_AnchorMax: {x: 0.976463, y: 0.9132013}
-  m_AnchoredPosition: {x: -345.81915, y: 0}
+  m_AnchoredPosition: {x: -345.81918, y: 0}
   m_SizeDelta: {x: -691.6384, y: -0.00005340576}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1750518344
@@ -8673,7 +8624,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -24, y: 0.00012207031}
+  m_AnchoredPosition: {x: -23.999998, y: 0.00012207031}
   m_SizeDelta: {x: 2821.901, y: 450.86182}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1772808273
@@ -9038,7 +8989,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -24, y: 0.00012207031}
+  m_AnchoredPosition: {x: -23.999998, y: 0.00012207031}
   m_SizeDelta: {x: 2821.901, y: 450.86182}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1795674686
@@ -9696,6 +9647,7 @@ GameObject:
   - component: {fileID: 1985190897}
   - component: {fileID: 1985190903}
   - component: {fileID: 1985190904}
+  - component: {fileID: 1985190898}
   - component: {fileID: 1985190899}
   m_Layer: 0
   m_Name: GameManager
@@ -9731,7 +9683,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animationScript: {fileID: 0}
-  loadInfoScript: {fileID: 1239132868}
+  loadInfoScript: {fileID: 0}
   listSigns: []
   sendInfoIndex: 0
   prefabOfSignItem: {fileID: 3461770587137528662, guid: 57f03f18c41dd414f94f09c62e77d93f,
@@ -9757,6 +9709,31 @@ MonoBehaviour:
   createNewEventObject: {fileID: 2040768357}
   loginObject: {fileID: 1489574223}
   bg_FileList: {fileID: 1099327266}
+--- !u!114 &1985190898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1985190894}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad4659bdc0e1d9e4a8848cecf037cae0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  openEvent: {fileID: 0}
+  nameEventText: {fileID: 1290410395}
+  placeNameText: {fileID: 586803175}
+  dateTimeText: {fileID: 143872861}
+  infoEventText: {fileID: 1255686062}
+  peopleListContent: {fileID: 379177961}
+  peopleCountText: {fileID: 1582354194}
+  joinButton: {fileID: 533991732}
+  leaveButton: {fileID: 11820646}
+  deleteButton: {fileID: 2004044687}
+  personPrefab: {fileID: 8490551606907987443, guid: 6fe3f5fb9b8654b479af7bf57ed1825d,
+    type: 3}
+  personsName: []
 --- !u!114 &1985190899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9947,7 +9924,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1239132868}
+      - m_Target: {fileID: 1985190898}
         m_MethodName: JoinOrLeaveButtonFunc
         m_Mode: 1
         m_Arguments:
@@ -10409,7 +10386,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -24, y: 0.00012207031}
+  m_AnchoredPosition: {x: -23.999998, y: 0.00012207031}
   m_SizeDelta: {x: 2821.901, y: 450.86182}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2097332125

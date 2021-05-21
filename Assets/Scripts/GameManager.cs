@@ -145,32 +145,6 @@ public class GameManager : MonoBehaviour, IPunObservable
 
                 newSignItem.ownerEvent = (string)stream.ReceiveNext();
 
-                //if (listSigns.Count < countSigns)
-                //{
-                //    listSigns.Add(newSignItem);
-                //}
-                //else if (listSigns.Count > countSigns)
-                //{
-                //    for (int index = 0; index < listSigns.Count; index++)
-                //    {
-                //        if (listSigns[index] == newSignItem)
-                //        {
-
-                //        }
-                //    }
-                //}
-                //else 
-                //{
-                //    for (int index = 0; index < listSigns.Count; index++)
-                //    {
-                //        if (listSigns[index] != newSignItem)
-                //        {
-                //            listSigns[index] = newSignItem;
-                //            listSigns.Add(newSignItem);
-                //        }
-                //    }
-                //}
-
                 listSigns.Add(newSignItem);
             }
 
@@ -256,6 +230,8 @@ public class GameManager : MonoBehaviour, IPunObservable
 
         listSigns.Add(newSignItem);
 
+        Debug.Log(newSignItem.ownerEvent + " " + newSignItem.nameEventText);
+
         LoadObjestForDashboard();
     }
 
@@ -328,50 +304,6 @@ public class GameManager : MonoBehaviour, IPunObservable
         }
     }
 
-    //private IEnumerator PersonNameFromServerByID(int personID, int personIndex)
-    //{
-    //    Debug.Log(personID + " " + personIndex);
-
-    //    waitingResultBool = true;
-    //    photonView.RPC("SendRequesToReturnPersonNameByIDFromServer", RpcTarget.MasterClient, PhotonNetwork.NickName, personID, personIndex);
-    //    yield return new WaitUntil(() => waitingResultBool == false);
-
-    //    Debug.Log(personsName[personIndex]);
-    //    GameObject newPerson = Instantiate(personPrefab, peopleListContent.transform);
-    //    newPerson.transform.GetChild(0).GetComponent<Text>().text = personsName[personIndex];
-    //    //newPerson.transform.GetChild(0).GetComponent<Text>().text = personName;
-    //}
-
-    //[PunRPC]
-    //public void ReturnPersonNameByIDFromServer(string personNameFromServer, int personIndex)
-    //{
-    //    personsName[personIndex] = personNameFromServer;
-    //    //personName = personNameFromServer;
-
-    //    waitingResultBool = false;
-    //}
-
-    //[PunRPC]
-    //public void SendRequesToReturnPersonNameByIDFromServer(string playerName, int personID, int personIndex)
-    //{
-    //    //if (gameManager == null)
-    //    //{
-    //    //    InitializationAllObjects();
-    //    //}
-
-    //    string personName = registeredPersonScript.registeredPersons.ReturnPersonNameByIDFromServer(personID);
-
-    //    Debug.Log(personName);
-
-    //    foreach (Player player in PhotonNetwork.PlayerList)
-    //    {
-    //        if (player.NickName == playerName)
-    //        {
-    //            GetComponent<PhotonView>().RPC("ReturnPersonNameByIDFromServer", player, personName, personIndex);
-    //        }
-    //    }
-    //}
-
     void AppSettings()
     {
         //Application.runInBackground = true;
@@ -386,6 +318,7 @@ public class GameManager : MonoBehaviour, IPunObservable
         //photonView = transform.GetComponent<PhotonView>();
 
         animationScript = GameObject.Find("GameManager").GetComponent<AnimationScript>();
+        loadInfoScript = GameObject.Find("GameManager").GetComponent<LoadInfoScript>();
         personInformationScript = GameObject.Find("GameManager").GetComponent<PersonInformationScript>();
         registeredPersonScript = GameObject.Find("GameManager").GetComponent<RegisteredPersonScript>();
     }
@@ -408,7 +341,7 @@ public class GameManager : MonoBehaviour, IPunObservable
         }
         else
         {
-            LoadObjestForDashboard();
+            GetComponent<LoadInfoScript>().enabled = false;
             eventName = "Dashboard";
         }
 
@@ -426,7 +359,9 @@ public class GameManager : MonoBehaviour, IPunObservable
             eventName = "Dashboard";
         }
 
-        animationScript.eventObject.GetComponent<LoadInfoScript>().openEvent = signItem;
+        //animationScript.eventObject.GetComponent<LoadInfoScript>().openEvent = signItem;
+        GetComponent<LoadInfoScript>().openEvent = signItem;
+        GetComponent<LoadInfoScript>().enabled = true;
 
         animationScript.OpenOrCloseObjects(eventName);
     }

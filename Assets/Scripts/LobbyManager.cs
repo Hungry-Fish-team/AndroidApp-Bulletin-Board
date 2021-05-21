@@ -310,6 +310,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         PhotonNetwork.RemoveCallbackTarget(this);
     }
 
+    public void OnDisconnectedFromMasterServer()
+    { 
+        isServerClose = true;
+        CloseSeverFunc();
+    }
+
     public void CloseSeverFunc()
     {
         if (PhotonNetwork.MasterClient == PhotonNetwork.LocalPlayer)
